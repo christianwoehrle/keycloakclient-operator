@@ -1,0 +1,34 @@
+linters-settings:
+  golint:
+    min-confidence: 0
+  gocyclo:
+    min-complexity: 70
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  funlen:
+    lines: 200
+    statements: 70
+
+run:
+  modules-download-mode: vendor
+  skip-dirs:
+    - pkg/client
+
+service:
+  golangci-lint-version: 1.26.0
+
+linters:
+  enable-all: true
+  disable:
+    - dupl
+    - maligned
+    - unparam
+    - lll
+    - gochecknoinits
+    - gochecknoglobals
+    - wsl
+    - godox
+    - gomnd
+    - testpackage
+    - godot

@@ -1,0 +1,16 @@
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakRealm
+metadata:
+  name: test-realm
+  labels:
+    realm: test-realm
+spec:
+  realm:
+    enabled: true
+    id: test-realm
+    realm: test-realm
+  unmanaged: true
+  instanceSelector:
+    matchLabels:
+      app: keycloakx
+

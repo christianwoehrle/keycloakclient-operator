@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloakclient-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: keycloakclient-operator
+  template:
+    metadata:
+      labels:
+        name: keycloakclient-operator
+    spec:
+      serviceAccountName: keycloakclient-operator
+      containers:
+        - name: keycloakclient-operator
+          # Replace this with the built image name
+          image: docker.io/christianwoehrle/keycloakclient-operator
+          command:
+          - /keycloakclient-operator
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "keycloakclients-operator"

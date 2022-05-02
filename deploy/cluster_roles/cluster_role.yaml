@@ -1,0 +1,45 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: keycloak-operator
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - events
+      - configmaps
+      - secrets
+    verbs:
+      - list
+      - get
+      - create
+      - patch
+      - update
+      - watch
+      - delete
+  - apiGroups:
+      - apps
+    resourceNames:
+      - keycloak-operator
+    resources:
+      - deployments/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - keycloak.org
+    resources:
+      - keycloaks
+      - keycloaks/status
+      - keycloaks/finalizers
+      - keycloakrealms
+      - keycloakrealms/status
+      - keycloakrealms/finalizers
+      - keycloakclients
+      - keycloakclients/status
+      - keycloakclients/finalizers
+    verbs:
+      - get
+      - list
+      - update
+      - watch

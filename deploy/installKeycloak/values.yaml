@@ -1,0 +1,29 @@
+command:
+  - "/opt/keycloak/bin/kc.sh"
+  - "start"
+  - "--auto-build"
+  - "--http-enabled=true"
+  - "--http-port=8080"
+  - "--hostname-strict=false"
+  - "--hostname-strict-https=false"
+extraEnv: |
+  - name: KEYCLOAK_ADMIN
+    value: admin
+  - name: KEYCLOAK_ADMIN_PASSWORD
+    value: secret
+  - name: JAVA_OPTS_APPEND
+    value: >-
+      -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
+  - name: JAVA_OPTS
+    value: -Xms256m -Xmx1024m -XX:MetaspaceSize=96M -XX:MaxMetaspaceSize=256m -Djava.net.preferIPv4Stack=true -Djboss.modules.system.pkgs=org.jboss.byteman -Djava.awt.headless=true -Dkeycloak.import=/realm/realm.json
+# Add additional volumes, e. g. for custom themes
+extraVolumes: |
+  - name: realm
+    configMap:
+      name: realm
+
+extraVolumeMounts: | 
+  - name: realm
+    mountPath: "/realm/"
+    readOnly: true
+

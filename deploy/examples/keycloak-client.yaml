@@ -1,0 +1,24 @@
+apiVersion: keycloak.org/v1alpha1
+kind: KeycloakClient
+metadata:
+  name: test-client
+spec:
+  realmSelector:
+    matchLabels:
+      realm: test-realm
+  roles:
+    - name: test1
+    - name: test2
+    - name: test4
+    - name: test5
+    - name: test6
+
+  client:
+    clientId: test-client
+    secret: test-client
+    clientAuthenticatorType: client-secret
+    protocol: openid-connect
+    defaultRoles:
+      - test4
+      - test5
+      - test6

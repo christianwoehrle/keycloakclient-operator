@@ -1,0 +1,13 @@
+apiVersion: keycloak.org/v1alpha1
+kind: Keycloak
+metadata:
+  labels:
+    app: keycloakx
+  name: keycloakx
+  namespace: keycloak
+spec:
+  external:
+    enabled: true
+    url: http://keycloak-keycloakx-http.keycloak.svc.cluster.local:80
+  unmanaged: true
+

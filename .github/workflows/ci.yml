@@ -1,0 +1,90 @@
+name: CI
+on: []
+#on: [push, pull_request]
+jobs:
+  build:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go 1.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.13
+      id: go
+    - name: Install dependencies
+      run: |
+        go get github.com/mattn/goveralls
+        go get github.com/modocache/gover
+        sudo apt-get install -y conntrack
+        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+        helm version
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+    - name: Unit tests
+      run: |
+        make test/unit
+    - name: Start minikube
+      uses: manusa/actions-setup-minikube@v2.4.2
+      with:
+        minikube version: 'v1.21.0'
+        kubernetes version: 'v1.21.2'
+        driver: 'docker'
+        start args: '--embed-certs true'
+    - name: Configure Minikube
+      run: |
+        minikube addons enable ingress
+        hack/modify_etc_hosts.sh "keycloak.local"
+        ls  ~/.kube
+        pwd
+    - name: Make kubeconfig available to Helm3 action
+      run: |
+        kubeconfig=$(cat ~/.kube/config)
+        kubeconfig="${kubeconfig//'%'/'%25'}"
+        kubeconfig="${kubeconfig//$'\n'/'%0A'}"
+        kubeconfig="${kubeconfig//$'\r'/'%0D'}"
+        echo "::set-output name=kubeconfig::$kubeconfig"
+      id: kubeconfig
+    - name: Show kubeconfig
+      run: |
+        echo "kubeconfig: ${{ steps.kubeconfig.outputs.kubeconfig }}"
+        curl https://keycloak.local:8443 -k
+        kubectl get ns
+        minikube ip
+    - name: Prepare cluster
+      run: |
+        make cluster/prepare
+    - name: Helm repo add
+      run: |
+        helm repo add codecentric https://codecentric.github.io/helm-charts
+    - name: Helm install
+      run: |
+        cat << EOF > values.yaml
+        command:
+          - "/opt/keycloak/bin/kc.sh"
+          - "start"
+          - "--auto-build"
+          - "--http-enabled=true"
+          - "--http-port=8080"
+          - "--hostname-strict=false"
+          - "--hostname-strict-https=false"
+        extraEnv: |
+          - name: KEYCLOAK_ADMIN
+            value: admin
+          - name: KEYCLOAK_ADMIN_PASSWORD
+            value: admin
+          - name: JAVA_OPTS_APPEND
+            value: >-
+              -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
+        EOF
+    - name: Deploy
+      run: |
+        helm install keycloakx codecentric/keycloakx --version 1.3.1 -f values.yaml  --debug  --wait --atomic --namespace=keycloak
+    - name: Test
+      run: |
+        make test/e2e
+        make cluster/clean
+    - name: Run e2e tests for local image
+      run: |
+        make test/e2e-local-image
