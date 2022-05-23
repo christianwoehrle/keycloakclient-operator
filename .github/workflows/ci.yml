@@ -1,6 +1,5 @@
 name: CI
-on: []
-#on: [push, pull_request]
+on: [push]
 jobs:
   build:
     name: Tests
@@ -26,10 +25,10 @@ jobs:
       run: |
         make test/unit
     - name: Start minikube
-      uses: manusa/actions-setup-minikube@v2.4.2
+      uses: manusa/actions-setup-minikube@v2.6.0
       with:
-        minikube version: 'v1.21.0'
-        kubernetes version: 'v1.21.2'
+        minikube version: 'v1.25.2'
+        kubernetes version: 'v1.23.3'
         driver: 'docker'
         start args: '--embed-certs true'
     - name: Configure Minikube
@@ -38,20 +37,6 @@ jobs:
         hack/modify_etc_hosts.sh "keycloak.local"
         ls  ~/.kube
         pwd
-    - name: Make kubeconfig available to Helm3 action
-      run: |
-        kubeconfig=$(cat ~/.kube/config)
-        kubeconfig="${kubeconfig//'%'/'%25'}"
-        kubeconfig="${kubeconfig//$'\n'/'%0A'}"
-        kubeconfig="${kubeconfig//$'\r'/'%0D'}"
-        echo "::set-output name=kubeconfig::$kubeconfig"
-      id: kubeconfig
-    - name: Show kubeconfig
-      run: |
-        echo "kubeconfig: ${{ steps.kubeconfig.outputs.kubeconfig }}"
-        curl https://keycloak.local:8443 -k
-        kubectl get ns
-        minikube ip
     - name: Prepare cluster
       run: |
         make cluster/prepare
