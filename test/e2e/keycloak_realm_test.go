@@ -9,22 +9,15 @@ import (
 )
 
 const (
-	realmName                  = "test-realm"
-	testOperatorIDPDisplayName = "Test Operator IDP"
+	realmName = "test-realm"
 )
 
 func NewKeycloakRealmsCRDTestStruct() *CRDTestStruct {
 	return &CRDTestStruct{
 		prepareEnvironmentSteps: []environmentInitializationStep{
-			prepareKeycloaksCR,
+			prepareUnmanagedKeycloaksCR,
 		},
 		testSteps: map[string]deployedOperatorTestStep{
-			"keycloakRealmBasicTest": {
-				prepareTestEnvironmentSteps: []environmentInitializationStep{
-					prepareKeycloakRealmCR,
-				},
-				testFunction: keycloakRealmBasicTest,
-			},
 			"unmanagedKeycloakRealmTest": {
 				testFunction: keycloakUnmanagedRealmTest,
 			},
@@ -52,11 +45,6 @@ func getKeycloakRealmCR(namespace string) *keycloakv1alpha1.KeycloakRealm {
 	}
 }
 
-func prepareKeycloakRealmCR(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
-	keycloakRealmCR := getKeycloakRealmCR(namespace)
-	return Create(framework, keycloakRealmCR, ctx)
-}
-
 func keycloakRealmBasicTest(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
 	return WaitForRealmToBeReady(t, framework, namespace)
 }
@@ -71,6 +59,24 @@ func keycloakUnmanagedRealmTest(t *testing.T, framework *test.Framework, ctx *te
 	}
 
 	err = WaitForRealmToBeReady(t, framework, namespace)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
+func prepareExternalKeycloakRealmCR(t *testing.T, f *test.Framework, ctx *test.Context, namespace string) error {
+	keycloakRealmCR := getKeycloakRealmCR(namespace)
+	keycloakRealmCR.Spec.Unmanaged = true
+
+	err := Create(f, keycloakRealmCR, ctx)
+
+	if err != nil {
+		return err
+	}
+
+	err = WaitForRealmToBeReady(t, f, namespace)
 	if err != nil {
 		return err
 	}

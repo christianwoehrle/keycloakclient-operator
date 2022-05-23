@@ -6,21 +6,17 @@ import (
 	"net/http"
 	"testing"
 
-	"k8s.io/client-go/kubernetes"
-
 	v1 "k8s.io/api/core/v1"
-
-	"github.com/pkg/errors"
 
 	"github.com/stretchr/testify/assert"
 
 	keycloakv1alpha1 "github.com/keycloak/keycloak-operator/pkg/apis/keycloak/v1alpha1"
-	"github.com/keycloak/keycloak-operator/pkg/model"
 	framework "github.com/operator-framework/operator-sdk/pkg/test"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const podName = "keycloak-0"
+const keycloakURL = "http://keycloak-keycloakx-http.keycloak.svc.cluster.local"
 
 func NewUnmanagedKeycloaksCRDTestStruct() *CRDTestStruct {
 	return &CRDTestStruct{
@@ -47,7 +43,7 @@ func getUnmanagedKeycloakCR(namespace string) *keycloakv1alpha1.Keycloak {
 	keycloak := getKeycloakCR(namespace)
 	keycloak.Name = testKeycloakUnmanagedCRName
 	keycloak.Spec.Unmanaged = true
-	keycloak.Spec.External.URL = "http://test/"
+	keycloak.Spec.External.URL = keycloakURL
 	return keycloak
 }
 
@@ -63,6 +59,12 @@ func getExternalKeycloakCR(namespace string, url string) *keycloakv1alpha1.Keycl
 func getDeployedKeycloakCR(f *framework.Framework, namespace string) keycloakv1alpha1.Keycloak {
 	keycloakCR := keycloakv1alpha1.Keycloak{}
 	_ = GetNamespacedObject(f, namespace, testKeycloakCRName, &keycloakCR)
+	return keycloakCR
+}
+
+func getDeployedUnmanagedKeycloakCR(f *framework.Framework, namespace string) keycloakv1alpha1.Keycloak {
+	keycloakCR := keycloakv1alpha1.Keycloak{}
+	_ = GetNamespacedObject(f, namespace, testKeycloakUnmanagedCRName, &keycloakCR)
 	return keycloakCR
 }
 
@@ -83,37 +85,9 @@ func getExternalKeycloakSecret(f *framework.Framework, namespace string) (*v1.Se
 	}, nil
 }
 
-func prepareKeycloaksCR(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string) error {
-	return deployKeycloaksCR(t, f, ctx, namespace, getKeycloakCR(namespace))
-}
-
-func deployKeycloaksCR(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string, keycloakCR *keycloakv1alpha1.Keycloak) error {
-	err := doWorkaroundIfNecessary(f, ctx, namespace)
-	if err != nil {
-		return err
-	}
-
-	err = Create(f, keycloakCR, ctx)
-	if err != nil {
-		return err
-	}
-
-	err = WaitForStatefulSetReplicasReady(t, f.KubeClient, model.ApplicationName, namespace)
-	if err != nil {
-		return err
-	}
-
-	return err
-}
-
 func prepareUnmanagedKeycloaksCR(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string) error {
-	err := doWorkaroundIfNecessary(f, ctx, namespace)
-	if err != nil {
-		return err
-	}
-
 	keycloakCR := getUnmanagedKeycloakCR(namespace)
-	err = Create(f, keycloakCR, ctx)
+	err := Create(f, keycloakCR, ctx)
 	if err != nil {
 		return err
 	}
@@ -127,8 +101,7 @@ func prepareUnmanagedKeycloaksCR(t *testing.T, f *framework.Framework, ctx *fram
 }
 
 func prepareExternalKeycloaksCR(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string) error {
-	keycloakCR := getDeployedKeycloakCR(f, namespace)
-	keycloakURL := keycloakCR.Status.ExternalURL
+	keycloakURL := keycloakURL
 
 	secret, err := getExternalKeycloakSecret(f, namespace)
 	if err != nil {
@@ -192,18 +165,7 @@ func keycloakDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework
 }
 
 func keycloakUnmanagedDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string) error {
-	keycloakCR := getDeployedKeycloakCR(f, namespace)
-	assert.Empty(t, keycloakCR.Status.ExternalURL)
-
-	err := WaitForCondition(t, f.KubeClient, func(t *testing.T, c kubernetes.Interface) error {
-		sts, err := f.KubeClient.AppsV1().StatefulSets(namespace).List(context.TODO(), metav1.ListOptions{})
-		if err != nil {
-			return errors.Errorf("list StatefulSet failed, ignoring for %v: %v", pollRetryInterval, err)
-		}
-		if len(sts.Items) == 0 {
-			return nil
-		}
-		return errors.Errorf("found Statefulsets, this shouldn't be the case")
-	})
-	return err
+	keycloakCR := getDeployedUnmanagedKeycloakCR(f, namespace)
+	assert.Equal(t, keycloakCR.Status.ExternalURL, keycloakURL)
+	return nil
 }

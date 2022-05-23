@@ -30,9 +30,8 @@ var ErrDeprecatedClientSecretFound = errors.New("deprecated client secret found"
 func NewKeycloakClientsCRDTestStruct() *CRDTestStruct {
 	return &CRDTestStruct{
 		prepareEnvironmentSteps: []environmentInitializationStep{
-			prepareKeycloaksCR,
 			prepareExternalKeycloaksCR,
-			prepareKeycloakRealmCR,
+			prepareExternalKeycloakRealmCR,
 		},
 		testSteps: map[string]deployedOperatorTestStep{
 			"keycloakClientBasicTest": {
