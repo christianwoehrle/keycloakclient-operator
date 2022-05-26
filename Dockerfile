@@ -1,4 +1,4 @@
-FROM registry.ci.openshift.org/openshift/release:golang-1.13 AS build-env
+FROM golang:1.18.2-buster  AS build-env
 
 COPY . /src/
 
@@ -7,12 +7,14 @@ RUN cd /src && \
     echo "Build SHA1: $(git rev-parse HEAD)" && \
     echo "$(git rev-parse HEAD)" > /src/BUILD_INFO
 
+#yum install make
+
+
 # final stage
-FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+FROM scratch
+
 
 ##LABELS
-
-RUN microdnf update && microdnf clean all && rm -rf /var/cache/yum/*
 
 COPY --from=build-env /src/BUILD_INFO /src/BUILD_INFO
 COPY --from=build-env /src/tmp/_output/bin/keycloakclient-operator /

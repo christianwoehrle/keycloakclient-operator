@@ -99,8 +99,6 @@ test/ibm-validation:
 
 .PHONY: test/e2e-local-image setup/operator-sdk
 test/e2e-local-image: setup/operator-sdk
-	@echo Backing up operator.yaml
-	@cp deploy/operator.yaml deploy/operator.yaml_bckp
 	@echo Building operator image:
 	eval $$(minikube -p minikube docker-env); \
 	docker build . -t keycloakclient-operator:test
@@ -109,7 +107,6 @@ test/e2e-local-image: setup/operator-sdk
 	@echo Creating namespace
 	kubectl create namespace $(NAMESPACE) || true
 	@echo Running e2e tests with a fresh built operator image in the cluster:
-	trap 'mv -f deploy/operator.yaml_bckp deploy/operator.yaml' EXIT; \
 	operator-sdk test local --go-test-flags "-tags=integration -coverpkg ./... -coverprofile cover-e2e.coverprofile -covermode=count -timeout 0" --image="keycloakclient-operator:test" --debug --verbose --operator-namespace $(NAMESPACE) ./test/e2e
 
 .PHONY: test/coverage/prepare
