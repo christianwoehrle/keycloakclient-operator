@@ -3,8 +3,8 @@ package keycloak
 import (
 	"testing"
 
-	"github.com/keycloak/keycloak-operator/pkg/apis/keycloak/v1alpha1"
-	"github.com/keycloak/keycloak-operator/pkg/model"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/model"
 	"github.com/stretchr/testify/assert"
 )
 

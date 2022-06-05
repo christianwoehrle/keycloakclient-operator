@@ -6,8 +6,8 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/keycloak/keycloak-operator/pkg/apis"
-	keycloakv1alpha1 "github.com/keycloak/keycloak-operator/pkg/apis/keycloak/v1alpha1"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/apis"
+	keycloakv1alpha1 "github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
 	framework "github.com/operator-framework/operator-sdk/pkg/test"
 	"github.com/operator-framework/operator-sdk/pkg/test/e2eutil"
 )
@@ -36,10 +36,10 @@ func TestKeycloakCRDS(t *testing.T) {
 	t.Run("KeycloakRealmsCRDTest", func(t *testing.T) {
 		runTestsFromCRDInterface(t, NewKeycloakRealmsCRDTestStruct())
 	})
-	/*
-		t.Run("KeycloakClientsCRDTest", func(t *testing.T) {
-			runTestsFromCRDInterface(t, NewKeycloakClientsCRDTestStruct())
-		})*/
+
+	t.Run("KeycloakClientsCRDTest", func(t *testing.T) {
+		runTestsFromCRDInterface(t, NewKeycloakClientsCRDTestStruct())
+	})
 
 }
 

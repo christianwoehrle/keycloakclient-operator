@@ -3,7 +3,7 @@ package assert
 import (
 	"testing"
 
-	"github.com/keycloak/keycloak-operator/pkg/common"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/common"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/apps/v1"
 )

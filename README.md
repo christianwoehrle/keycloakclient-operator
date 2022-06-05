@@ -55,7 +55,7 @@ In the KeycloakClient you can specify the KeycloakClient.
 
 ## Reporting an issue
 
-If you believe you have discovered a defect in the KeycloakClent Operator please open an [an issue](https://github.com/keycloak/keycloak-operator/issues).
+If you believe you have discovered a defect in the KeycloakClent Operator please open an [an issue](https://github.com/christianwoehrle/keycloakclient-operator/issues).
 Please remember to provide a good summary, description as well as steps to reproduce the issue.
 
 ## Supported Custom Resources

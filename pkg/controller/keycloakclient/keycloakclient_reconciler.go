@@ -3,11 +3,11 @@ package keycloakclient
 import (
 	"fmt"
 
-	"github.com/keycloak/keycloak-operator/pkg/controller/keycloakuser"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/controller/keycloakuser"
 
-	kc "github.com/keycloak/keycloak-operator/pkg/apis/keycloak/v1alpha1"
-	"github.com/keycloak/keycloak-operator/pkg/common"
-	"github.com/keycloak/keycloak-operator/pkg/model"
+	kc "github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/common"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/model"
 )
 
 const (

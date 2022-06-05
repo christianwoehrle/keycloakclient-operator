@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/keycloak/keycloak-operator/version"
+	"github.com/christianwoehrle/keycloakclient-operator/version"
 
 	v1beta12 "k8s.io/api/policy/v1beta1"
 
@@ -17,10 +17,10 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/keycloak/keycloak-operator/pkg/apis/keycloak/v1alpha1"
-	kc "github.com/keycloak/keycloak-operator/pkg/apis/keycloak/v1alpha1"
-	keycloakv1alpha1 "github.com/keycloak/keycloak-operator/pkg/apis/keycloak/v1alpha1"
-	"github.com/keycloak/keycloak-operator/pkg/common"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
+	kc "github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
+	keycloakv1alpha1 "github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/common"
 	"github.com/pkg/errors"
 
 	networkingv1 "k8s.io/api/networking/v1"

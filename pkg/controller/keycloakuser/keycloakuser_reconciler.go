@@ -3,8 +3,8 @@ package keycloakuser
 import (
 	"fmt"
 
-	"github.com/keycloak/keycloak-operator/pkg/apis/keycloak/v1alpha1"
-	"github.com/keycloak/keycloak-operator/pkg/common"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/common"
 )
 
 func GetUserRealmRolesDesiredState(state *common.UserState, realmRoles []string, realmName string) []common.ClusterAction {

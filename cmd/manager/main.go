@@ -9,11 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/keycloak/keycloak-operator/pkg/k8sutil"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/k8sutil"
 
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 
-	"github.com/keycloak/keycloak-operator/version"
+	"github.com/christianwoehrle/keycloakclient-operator/version"
 	"github.com/pkg/errors"
 
 	routev1 "github.com/openshift/api/route/v1"
@@ -22,8 +22,8 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
 
-	"github.com/keycloak/keycloak-operator/pkg/apis"
-	"github.com/keycloak/keycloak-operator/pkg/controller"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/apis"
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/controller"
 
 	monitoringv1 "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1"
 	grafanav1alpha1 "github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
@@ -97,7 +97,7 @@ func main() {
 
 	ctx := context.TODO()
 	// Become the leader before proceeding
-	err = leader.Become(ctx, "keycloak-operator-lock")
+	err = leader.Become(ctx, "keycloakclient-operator-lock")
 	if err != nil {
 		log.Error(err, "")
 		os.Exit(1)

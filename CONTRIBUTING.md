@@ -30,20 +30,6 @@ you do not respond within 2 weeks (bear in mind you can always open a new PR if 
 Also, please remember that we do receive a fairly large amount of PRs and also have code to write ourselves, so we may
 not be able to respond to your PR immediately. The best place to ping us is on the thread you started on the dev mailing list.
 
-### Finding something to work on
-
-If you would like to contribute to Keycloak, but are not sure exactly what to work on, you can find a number of open
-issues that are awaiting contributions in the 
-[GitHub Issues](https://github.com/keycloak/keycloak-operator/issues?q=is%3Aopen+is%3Aissue+no%3Aassignee).
-
-### Open a discussion on Keycloak Dev Mailing List
-
-As Keycloak is a community-driven project we require contributors to send a description of what they are planning to 
-work on to the [Keycloak Dev Mailing List](https://groups.google.com/forum/#!forum/keycloak-dev).
-
-We recommend starting the discussion prior to submitting your PR. Through the mailing list you can get valuable
-feedback both from the core Keycloak team as well as the wider community.
-
 ### Create an issue
 
 Take your time to write a proper issue including a good summary and description. 

@@ -1,7 +1,7 @@
 # Other contants
 NAMESPACE=keycloak
 PROJECT=keycloakclient-operator
-PKG=github.com/keycloak/keycloakclient-operator
+PKG=github.com/christianwoehrle/keycloakclient-operator
 OPERATOR_SDK_VERSION=v0.18.2
 ifeq ($(shell uname),Darwin)
   OPERATOR_SDK_ARCHITECTURE=x86_64-apple-darwin
@@ -198,9 +198,9 @@ client/gen:
 	@mkdir -p ./tmp/code-generator
 	@git clone https://github.com/kubernetes/code-generator.git --branch v0.21.0-alpha.2 --single-branch  ./tmp/code-generator
 	# generate client
-	./tmp/code-generator/generate-groups.sh "client,informer,lister" github.com/keycloak/keycloakclient-operator/pkg/client github.com/keycloak/keycloakclient-operator/pkg/apis keycloak:v1alpha1 --output-base ./tmp --go-header-file ./hack/boilerplate.go.txt
+	./tmp/code-generator/generate-groups.sh "client,informer,lister" github.com/christianwoehrle/keycloakclient-operator/pkg/client github.com/christianwoehrle/keycloakclient-operator/pkg/apis keycloak:v1alpha1 --output-base ./tmp --go-header-file ./hack/boilerplate.go.txt
 	# check generated client at ./pkg/client
-	@cp -r ./tmp/github.com/keycloak/keycloakclient-operator/pkg/client/* ./pkg/client/
+	@cp -r ./tmp/github.com/christianwoehrle/keycloakclient-operator/pkg/client/* ./pkg/client/
 	@rm -rf ./tmp/github.com ./tmp/code-generator
 
 .PHONY: test/goveralls

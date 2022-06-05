@@ -6,7 +6,7 @@ const (
 	testKeycloakCRName               = "keycloak-test"
 	testKeycloakUnmanagedCRName      = "unmanaged-keycloak-test"
 	testKeycloakExternalCRName       = "external-keycloak-test"
-	operatorCRName                   = "keycloak-operator"
+	operatorCRName                   = "keycloakclient-operator"
 	testKeycloakRealmCRName          = "keycloak-realm-test"
 	testKeycloakClientCRName         = "keycloak-client-test"
 	testAuthZKeycloakClientCRName    = "authz-keycloak-client-test"

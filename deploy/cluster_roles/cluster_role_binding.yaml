@@ -1,12 +1,12 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: keycloak-operator
+  name: keycloakclient-operator
 roleRef:
-  name: keycloak-operator
+  name: keycloakclient-operator
   kind: ClusterRole
   apiGroup: ""
 subjects:
   - kind: ServiceAccount
-    name: keycloak-operator
+    name: keycloakclient-operator
     namespace: keycloak
