@@ -141,13 +141,23 @@ func (i *ClusterActionRunner) CreateClient(obj *v1alpha1.KeycloakClient, realm s
 
 	uid, err := i.keycloakClient.CreateClient(obj.Spec.Client, realm)
 
-	if err != nil {
-		return err
+	if err == nil {
+		obj.Spec.Client.ID = uid
+
+		return i.client.Update(i.context, obj)
 	}
 
-	obj.Spec.Client.ID = uid
+	if err.Error() == "failed to create client: (409) 409 Conflict" {
+		uid, err := i.keycloakClient.GetClientID(obj.Spec.Client.ClientID, realm)
 
-	return i.client.Update(i.context, obj)
+		if err != nil {
+			return err
+		}
+		obj.Spec.Client.ID = uid
+		return i.keycloakClient.UpdateClient(obj.Spec.Client, realm)
+	}
+
+	return err
 }
 
 func (i *ClusterActionRunner) UpdateClient(obj *v1alpha1.KeycloakClient, realm string) error {

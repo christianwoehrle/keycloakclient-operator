@@ -243,6 +243,22 @@ func (c *Client) GetClient(clientID, realmName string) (*v1alpha1.KeycloakAPICli
 	return ret, err
 }
 
+func (c *Client) GetClientID(name, realmName string) (string, error) {
+	result, err := c.get(fmt.Sprintf("realms/%s/clients/?clientId=%s", realmName, name), "client", func(body []byte) (T, error) {
+		clients := []*v1alpha1.KeycloakAPIClient{}
+		err := json.Unmarshal(body, &clients)
+		return clients[0].ID, err
+	})
+	if err != nil {
+		return "", err
+	}
+	if result == nil {
+		return "", nil
+	}
+	ret := result.(string)
+	return ret, err
+}
+
 func (c *Client) GetClientSecret(clientID, realmName string) (string, error) {
 	//"https://{{ rhsso_route }}/auth/admin/realms/{{ rhsso_realm }}/clients/{{ rhsso_client_id }}/client-secret"
 	result, err := c.get(fmt.Sprintf("realms/%s/clients/%s/client-secret", realmName, clientID), "client-secret", func(body []byte) (T, error) {
@@ -761,6 +777,7 @@ type KeycloakInterface interface {
 
 	CreateClient(client *v1alpha1.KeycloakAPIClient, realmName string) (string, error)
 	GetClient(clientID, realmName string) (*v1alpha1.KeycloakAPIClient, error)
+	GetClientID(clientID, realmName string) (string, error)
 	GetClientSecret(clientID, realmName string) (string, error)
 	GetClientInstall(clientID, realmName string) ([]byte, error)
 	UpdateClient(specClient *v1alpha1.KeycloakAPIClient, realmName string) error
