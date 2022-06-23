@@ -23,12 +23,12 @@ jobs:
           distribution: goreleaser
           version: latest
           args: release --rm-dist
-          workdir: cmd/lastlogin
+          workdir: cmd/manager
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       -
         name: Upload assets
         uses: actions/upload-artifact@v3
         with:
-          name: keycloak-lastlogin
+          name: keycloakclient-operator
           path: dist/*
