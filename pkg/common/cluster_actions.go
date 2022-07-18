@@ -147,14 +147,28 @@ func (i *ClusterActionRunner) CreateClient(obj *v1alpha1.KeycloakClient, realm s
 		return i.client.Update(i.context, obj)
 	}
 
-	if err.Error() == "failed to create client: (409) 409 Conflict" {
-		uid, err := i.keycloakClient.GetClientID(obj.Spec.Client.ClientID, realm)
+	log.Error(err, "create client failed for client %s", obj.Spec.Client.Name)
 
-		if err != nil {
-			return err
+	if err.Error() == "failed to create client: (409) 409 Conflict" {
+		log.Info(" retry create client after 409 Conclict")
+
+		uid, err2 := i.keycloakClient.GetClientID(obj.Spec.Client.ClientID, realm)
+
+		if err2 != nil {
+			return errors.Errorf("cannot perform client create because of %s followed by %s", err.Error(), err2.Error())
 		}
-		obj.Spec.Client.ID = uid
-		return i.keycloakClient.UpdateClient(obj.Spec.Client, realm)
+		err3 := i.keycloakClient.DeleteClient(uid, realm)
+		if err3 != nil {
+			return errors.Errorf("cannot perform client create because of %s followed by %s", err.Error(), err3.Error())
+		}
+
+		uid, err := i.keycloakClient.CreateClient(obj.Spec.Client, realm)
+
+		if err == nil {
+			obj.Spec.Client.ID = uid
+
+			return i.client.Update(i.context, obj)
+		}
 	}
 
 	return err
