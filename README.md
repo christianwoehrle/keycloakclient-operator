@@ -11,9 +11,9 @@ If you look for the official KeycloakOperator from RedHat, please look into the 
 
 The Operator is opinionated in a way that it expects that Keycloak and 
 the realm are already set up (i.e. with one of the available Helm Charts) and it only has 
-to handle the KeycloakClients for a Keycloak Installation and a specifiy realm.
+to handle the KeycloakClients for a Keycloak Installation and a specific realm.
 
-This fits our need as we set up Keycloak and the realm with Helm and we have very many microservices that require their own KeycloakClient.
+This fits our need as we set up Keycloak and the realm with Helm, and we have very many microservices that require their own KeycloakClient.
 The Microservices are deployed via Helm and it is easy to simply deploy a KeycloakClient Resource together with the other artefacts of the Microservice and let 
 the Operator handle the creation of the KeycloakClient in Keycloak.
 
