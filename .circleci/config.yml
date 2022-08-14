@@ -21,3 +21,4 @@ jobs:
           path: /tmp/artifacts
       - codecov/upload:
           file: /tmp/artifacts/coverage.html
+          token: token: ${{ secrets.CODECOV_TOKEN }} 
