@@ -25,7 +25,7 @@ import (
 
 const (
 	RealmFinalizer    = "realm.cleanup"
-	RequeueDelayError = 5 * time.Second
+	RequeueDelayError = 60 * time.Second
 	ControllerName    = "controller_keycloakrealm"
 )
 

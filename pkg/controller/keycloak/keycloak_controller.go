@@ -37,8 +37,8 @@ import (
 var log = logf.Log.WithName("controller_keycloak")
 
 const (
-	RequeueDelay      = 30 * time.Second
-	RequeueDelayError = 5 * time.Second
+	RequeueDelay      = 150 * time.Second
+	RequeueDelayError = 60 * time.Second
 	ControllerName    = "keycloak-controller"
 )
 

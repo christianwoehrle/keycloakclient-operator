@@ -25,7 +25,7 @@ var log = logf.Log.WithName("controller_keycloakclient")
 
 const (
 	ClientFinalizer   = "client.cleanup"
-	RequeueDelayError = 5 * time.Second
+	RequeueDelayError = 60 * time.Second
 	ControllerName    = "keycloakclient-controller"
 )
 
