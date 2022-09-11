@@ -13,7 +13,6 @@ import (
 
 	monitoringv1 "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1"
 	grafanav1alpha1 "github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
-	routev1 "github.com/openshift/api/route/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 
@@ -114,10 +113,6 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	if err := common.WatchSecondaryResource(c, ControllerName, grafanav1alpha1.GrafanaDashboardKind, &grafanav1alpha1.GrafanaDashboard{}, &kc.Keycloak{}); err != nil {
-		return err
-	}
-
-	if err := common.WatchSecondaryResource(c, ControllerName, common.RouteKind, &routev1.Route{}, &kc.Keycloak{}); err != nil {
 		return err
 	}
 
