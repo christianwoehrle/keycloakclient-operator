@@ -6,14 +6,9 @@ import (
 
 	"github.com/christianwoehrle/keycloakclient-operator/version"
 
-	v1beta12 "k8s.io/api/policy/v1beta1"
-
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 
-	monitoringv1 "github.com/coreos/prometheus-operator/pkg/apis/monitoring/v1"
-	grafanav1alpha1 "github.com/integr8ly/grafana-operator/v3/pkg/apis/integreatly/v1alpha1"
-	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
@@ -22,7 +17,6 @@ import (
 	"github.com/christianwoehrle/keycloakclient-operator/pkg/common"
 	"github.com/pkg/errors"
 
-	networkingv1 "k8s.io/api/networking/v1"
 	kubeerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -77,42 +71,6 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 	}
 
 	if err := common.WatchSecondaryResource(c, ControllerName, common.SecretKind, &corev1.Secret{}, &kc.Keycloak{}); err != nil {
-		return err
-	}
-
-	if err := common.WatchSecondaryResource(c, ControllerName, common.StatefulSetKind, &appsv1.StatefulSet{}, &kc.Keycloak{}); err != nil {
-		return err
-	}
-
-	if err := common.WatchSecondaryResource(c, ControllerName, common.ServiceKind, &corev1.Service{}, &kc.Keycloak{}); err != nil {
-		return err
-	}
-
-	if err := common.WatchSecondaryResource(c, ControllerName, common.IngressKind, &networkingv1.Ingress{}, &kc.Keycloak{}); err != nil {
-		return err
-	}
-
-	if err := common.WatchSecondaryResource(c, ControllerName, common.DeploymentKind, &appsv1.Deployment{}, &kc.Keycloak{}); err != nil {
-		return err
-	}
-
-	if err := common.WatchSecondaryResource(c, ControllerName, common.PersistentVolumeClaimKind, &corev1.PersistentVolumeClaim{}, &kc.Keycloak{}); err != nil {
-		return err
-	}
-
-	if err := common.WatchSecondaryResource(c, ControllerName, common.PodDisruptionBudgetKind, &v1beta12.PodDisruptionBudget{}, &kc.Keycloak{}); err != nil {
-		return err
-	}
-
-	if err := common.WatchSecondaryResource(c, ControllerName, monitoringv1.PrometheusRuleKind, &monitoringv1.PrometheusRule{}, &kc.Keycloak{}); err != nil {
-		return err
-	}
-
-	if err := common.WatchSecondaryResource(c, ControllerName, monitoringv1.ServiceMonitorsKind, &monitoringv1.ServiceMonitor{}, &kc.Keycloak{}); err != nil {
-		return err
-	}
-
-	if err := common.WatchSecondaryResource(c, ControllerName, grafanav1alpha1.GrafanaDashboardKind, &grafanav1alpha1.GrafanaDashboard{}, &kc.Keycloak{}); err != nil {
 		return err
 	}
 
