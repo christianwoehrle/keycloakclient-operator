@@ -7,8 +7,6 @@ rules:
   - ""
   resources:
   - events
-  - pods
-  - configmaps
   - secrets
   verbs:
   - list
