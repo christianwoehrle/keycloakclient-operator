@@ -5,8 +5,6 @@ name: docker-ci
 # Controls when the workflow will run
 on:
   push:
-    tags:
-      - 'v*'
 jobs:
   build:
     runs-on: ubuntu-latest
