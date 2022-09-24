@@ -3,33 +3,47 @@ kind: Role
 metadata:
   name: keycloakclient-operator
 rules:
-- apiGroups:
-  - ""
-  resources:
-  - events
-  - secrets
-  verbs:
-  - list
-  - get
-  - create
-  - patch
-  - update
-  - watch
-  - delete
-- apiGroups:
-  - keycloak.org
-  resources:
-  - keycloaks
-  - keycloaks/status
-  - keycloaks/finalizers
-  - keycloakrealms
-  - keycloakrealms/status
-  - keycloakrealms/finalizers
-  - keycloakclients
-  - keycloakclients/status
-  - keycloakclients/finalizers
-  verbs:
-  - get
-  - list
-  - update
-  - watch
+  - apiGroups:
+      - ""
+    resources:
+      - services
+      - services/finalizers
+      - events
+      - secrets
+      - configmaps
+      - pods
+    verbs:
+      - list
+      - get
+      - create
+      - patch
+      - update
+      - watch
+      - delete
+  - apiGroups:
+      - apps
+    resources:
+      - replicasets
+      - deployments
+    verbs:
+      - list
+      - get
+      - watch
+  - apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - servicemonitors
+    verbs:
+      - list
+      - get
+      - create
+      - update
+      - watch
+  - apiGroups:
+      - apps
+    resourceNames:
+      - keycloak-operator
+    resources:
+      - deployments/finalizers
+    verbs:
+      - update
