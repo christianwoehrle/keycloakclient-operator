@@ -5,11 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
-
 	"github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
 	kc "github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
-	"github.com/christianwoehrle/keycloakclient-operator/pkg/common"
 	corev1 "k8s.io/api/core/v1"
 	kubeerrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -116,68 +113,12 @@ func (r *ReconcileKeycloakRealm) Reconcile(request reconcile.Request) (reconcile
 		return reconcile.Result{}, err
 	}
 
-	if instance.Spec.Unmanaged {
-		return reconcile.Result{Requeue: false}, r.manageSuccess(instance, instance.DeletionTimestamp != nil)
-	}
-
-	// If no selector is set we can't figure out which Keycloak instance this realm should
-	// be added to. Skip reconcile until a selector has been set.
-	if instance.Spec.InstanceSelector == nil {
-		log.Info(fmt.Sprintf("realm %v/%v has no instance selector and will be ignored", instance.Namespace, instance.Name))
-		return reconcile.Result{Requeue: false}, nil
-	}
-
-	keycloaks, err := common.GetMatchingKeycloaks(r.context, r.client, instance.Spec.InstanceSelector)
-	if err != nil {
-		return r.ManageError(instance, err)
-	}
-
-	log.Info(fmt.Sprintf("found %v matching keycloak(s) for realm %v/%v", len(keycloaks.Items), instance.Namespace, instance.Name))
-
-	// The realm may be applicable to multiple keycloak instances,
-	// process all of them
-	for _, keycloak := range keycloaks.Items {
-		// Get an authenticated keycloak api client for the instance
-		keycloakFactory := common.LocalConfigKeycloakFactory{}
-
-		if keycloak.Spec.Unmanaged {
-			return r.ManageError(instance, errors.Errorf("realms cannot be created for unmanaged keycloak instances"))
-		}
-
-		authenticated, err := keycloakFactory.AuthenticatedClient(keycloak, false)
-
-		if err != nil {
-			return r.ManageError(instance, err)
-		}
-
-		// Compute the current state of the realm
-		realmState := common.NewRealmState(r.context, keycloak)
-
-		log.Info(fmt.Sprintf("read state for keycloak %v/%v, realm %v/%v",
-			keycloak.Namespace,
-			keycloak.Name,
-			instance.Namespace,
-			instance.Spec.Realm.Realm))
-
-		err = realmState.Read(instance, authenticated, r.client)
-		if err != nil {
-			return r.ManageError(instance, err)
-		}
-
-		// Figure out the actions to keep the realms up to date with
-		// the desired state
-		reconciler := NewKeycloakRealmReconciler(keycloak)
-		desiredState := reconciler.Reconcile(realmState, instance)
-		actionRunner := common.NewClusterAndKeycloakActionRunner(r.context, r.client, r.scheme, instance, authenticated)
-
-		// Run all actions to keep the realms updated
-		err = actionRunner.RunAll(desiredState)
-		if err != nil {
-			return r.ManageError(instance, err)
-		}
+	if !instance.Spec.Unmanaged {
+		log.Info(fmt.Sprintf("ignore unmanaged==true flag in realm %v/%v handle it as unmanaged", instance.Namespace, instance.Name))
 	}
 
 	return reconcile.Result{Requeue: false}, r.manageSuccess(instance, instance.DeletionTimestamp != nil)
+
 }
 
 func (r *ReconcileKeycloakRealm) manageSuccess(realm *kc.KeycloakRealm, deleted bool) error {
@@ -229,22 +170,4 @@ func (r *ReconcileKeycloakRealm) manageSuccess(realm *kc.KeycloakRealm, deleted 
 
 	realm.Finalizers = newFinalizers
 	return r.client.Update(r.context, realm)
-}
-
-func (r *ReconcileKeycloakRealm) ManageError(realm *kc.KeycloakRealm, issue error) (reconcile.Result, error) {
-	r.recorder.Event(realm, "Warning", "ProcessingError", issue.Error())
-
-	realm.Status.Message = issue.Error()
-	realm.Status.Ready = false
-	realm.Status.Phase = v1alpha1.PhaseFailing
-
-	err := r.client.Status().Update(r.context, realm)
-	if err != nil {
-		log.Error(err, "unable to update status")
-	}
-
-	return reconcile.Result{
-		RequeueAfter: RequeueDelayError,
-		Requeue:      true,
-	}, nil
 }
