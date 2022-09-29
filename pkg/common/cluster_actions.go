@@ -25,8 +25,6 @@ type ActionRunner interface {
 	Create(obj runtime.Object) error
 	Update(obj runtime.Object) error
 	Delete(obj runtime.Object) error
-	CreateRealm(obj *v1alpha1.KeycloakRealm) error
-	DeleteRealm(obj *v1alpha1.KeycloakRealm) error
 	CreateClient(keycloakClient *v1alpha1.KeycloakClient, Realm string) error
 	DeleteClient(keycloakClient *v1alpha1.KeycloakClient, Realm string) error
 	UpdateClient(keycloakClient *v1alpha1.KeycloakClient, Realm string) error
@@ -349,11 +347,6 @@ type GenericDeleteAction struct {
 	Msg string
 }
 
-type CreateRealmAction struct {
-	Ref *v1alpha1.KeycloakRealm
-	Msg string
-}
-
 type CreateClientAction struct {
 	Ref   *v1alpha1.KeycloakClient
 	Msg   string
@@ -364,11 +357,6 @@ type UpdateClientAction struct {
 	Ref   *v1alpha1.KeycloakClient
 	Msg   string
 	Realm string
-}
-
-type DeleteRealmAction struct {
-	Ref *v1alpha1.KeycloakRealm
-	Msg string
 }
 
 type DeleteClientAction struct {
@@ -471,11 +459,6 @@ type DeleteClientOptionalClientScopeAction struct {
 	Realm       string
 }
 
-type ConfigureRealmAction struct {
-	Ref *v1alpha1.KeycloakRealm
-	Msg string
-}
-
 type PingAction struct {
 	Msg string
 }
@@ -520,10 +503,6 @@ func (i GenericUpdateAction) Run(runner ActionRunner) (string, error) {
 
 func (i GenericDeleteAction) Run(runner ActionRunner) (string, error) {
 	return i.Msg, runner.Delete(i.Ref)
-}
-
-func (i CreateRealmAction) Run(runner ActionRunner) (string, error) {
-	return i.Msg, runner.CreateRealm(i.Ref)
 }
 
 func (i CreateClientAction) Run(runner ActionRunner) (string, error) {
@@ -584,10 +563,6 @@ func (i UpdateClientOptionalClientScopeAction) Run(runner ActionRunner) (string,
 
 func (i DeleteClientOptionalClientScopeAction) Run(runner ActionRunner) (string, error) {
 	return i.Msg, runner.DeleteClientOptionalClientScope(i.Ref, i.ClientScope, i.Realm)
-}
-
-func (i DeleteRealmAction) Run(runner ActionRunner) (string, error) {
-	return i.Msg, runner.DeleteRealm(i.Ref)
 }
 
 func (i DeleteClientAction) Run(runner ActionRunner) (string, error) {
