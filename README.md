@@ -5,6 +5,9 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+[![codecov](https://codecov.io/gh/christianwoehrle/keycloakclient-operator/branch/main/graph/badge.svg?token=tNKcOjlxLo)](https://codecov.io/gh/christianwoehrle/keycloakclient-operator)
+
+
 # KeycloakClient Operator
 A Kubernetes Operator based on the Operator SDK for creating and syncing KeycloakClient-Resources in Keycloak
 
