@@ -1,11 +1,10 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/christianwoehrle/keycloakclient-operator)](https://goreportcard.com/report/github.com/christianwoehrle/keycloakclient-operator)
 
-[![Coverage Status](https://coveralls.io/repos/github/christianwoehrle/keycloakclient-operator/badge.svg?branch=main)](https://coveralls.io/github/christianwoehrle/keycloakclient-operator?branch=main)
+[![codecov](https://codecov.io/gh/christianwoehrle/keycloakclient-operator/branch/main/graph/badge.svg?token=tNKcOjlxLo)](https://codecov.io/gh/christianwoehrle/keycloakclient-operator)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-[![codecov](https://codecov.io/gh/christianwoehrle/keycloakclient-operator/branch/main/graph/badge.svg?token=tNKcOjlxLo)](https://codecov.io/gh/christianwoehrle/keycloakclient-operator)
 
 
 # KeycloakClient Operator
