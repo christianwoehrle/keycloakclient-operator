@@ -68,7 +68,7 @@ The keycloakclient-cr actually triggers the keycloakclient-operator to create th
 
 
 
-To have the Keycloak Client Operator handle KeycloakClients for a specifiy Keycloak INstallation and Realm you need the following Ressources
+To have the Keycloak Client Operator handle KeycloakClients for a specifiy Keycloak Installation and Realm you need the following Ressources
 
 
 
