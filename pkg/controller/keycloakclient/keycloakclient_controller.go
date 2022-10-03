@@ -26,6 +26,7 @@ var log = logf.Log.WithName("controller_keycloakclient")
 const (
 	ClientFinalizer   = "client.cleanup"
 	RequeueDelayError = 60 * time.Second
+	RequeueDelay      = 150 * time.Second
 	ControllerName    = "keycloakclient-controller"
 )
 
@@ -163,8 +164,19 @@ func (r *ReconcileKeycloakClient) Reconcile(request reconcile.Request) (reconcil
 			}
 		}
 	}
+	err = r.manageSuccess(instance, instance.DeletionTimestamp != nil)
 
-	return reconcile.Result{Requeue: false}, r.manageSuccess(instance, instance.DeletionTimestamp != nil)
+	if err != nil {
+		log.Error(err, "unable to update status")
+		return reconcile.Result{
+			RequeueAfter: RequeueDelayError,
+			Requeue:      true,
+		}, nil
+	}
+
+	log.Info("desired cluster state met")
+	return reconcile.Result{RequeueAfter: RequeueDelay}, nil
+
 }
 
 // Fills the CR with default values. Nils are not acceptable for Kubernetes.
