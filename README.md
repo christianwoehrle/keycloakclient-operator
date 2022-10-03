@@ -62,6 +62,13 @@ The keycloakclient-cr actually triggers the keycloakclient-operator to create th
 
 1. Run `make cluster/create/examples`
 
+### Check Creation of KeycloakClient
+
+Log into Keycloak and check that the KeycloakClient `test-client` has been crested 
+
+![alt text](keycloak.png)
+
+
 
 ### Run the Keycloak Client Operator
 
