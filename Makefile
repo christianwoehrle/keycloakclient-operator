@@ -21,8 +21,9 @@ CGO_ENABLED=0
 ##############################
 .PHONY: cluster/prepare
 cluster/prepare:
-	@kubectl apply -f deploy/crds/ || true
 	@kubectl create namespace $(NAMESPACE) || true
+	@kubectl apply -f deploy/crds/ || true
+	@kubectl apply -f deploy/clusterroles/ || true
 	@kubectl apply -f deploy/role.yaml -n $(NAMESPACE) || true
 	@kubectl apply -f deploy/role_binding.yaml -n $(NAMESPACE) || true
 	@kubectl apply -f deploy/service_account.yaml -n $(NAMESPACE) || true
@@ -32,8 +33,9 @@ cluster/clean:
 	@kubectl delete -f deploy/service_account.yaml -n $(NAMESPACE) || true
 	@kubectl delete -f deploy/role_binding.yaml -n $(NAMESPACE) || true
 	@kubectl delete -f deploy/role.yaml -n $(NAMESPACE) || true
-	@kubectl delete namespace $(NAMESPACE) || true
+	@kubectl delete -f deploy/clusterroles/ || true
 	@kubectl delete -f deploy/crds/ || true
+	@kubectl delete namespace $(NAMESPACE) || true
 	
 .PHONY: cluster/clean/monitoring
 cluster/clean/monitoring:
@@ -68,6 +70,10 @@ cluster/installKeycloak:
 	@kubectl apply -f deploy/installKeycloak/realm.yaml -n $(NAMESPACE)
 	@helm upgrade --install keycloak codecentric/keycloakx --values "deploy/installKeycloak/values.yaml" -n $(NAMESPACE)
 
+.PHONY: cluster/installKeycloakOperator  
+cluster/installKeycloak:
+	@kubectl apply -f deploy/operator.yaml -n $(NAMESPACE)
+
 # see https://artifacthub.io/packages/helm/codecentric/keycloakx?modal=install
 .PHONY: cluster/create/examples
 cluster/create/examples:
@@ -91,11 +97,6 @@ test/e2e-latest-image:
 	@echo Running the latest operator image in the cluster:
 	# Doesn't need cluster/prepare as it's done by operator-sdk. Uses a randomly generated namespace (instead of keycloak namespace) to support parallel test runs.
 	operator-sdk run local ./test/e2e --go-test-flags "-tags=integration -coverpkg ./... -coverprofile cover-e2e.coverprofile -covermode=count" --debug --verbose
-
-.PHONY: test/ibm-validation
-test/ibm-validation:
-	@echo Running the operator image in the cluster
-	operator-sdk test local ./test/e2e --go-test-flags "-tags=integration -coverpkg ./... -coverprofile cover-e2e.coverprofile -covermode=count -timeout 0" --operator-namespace $(NAMESPACE) --debug --verbose --global-manifest=deploy/empty-init.yaml --namespaced-manifest=deploy/operator.yaml
 
 .PHONY: test/e2e-local-image setup/operator-sdk
 test/e2e-local-image: setup/operator-sdk
