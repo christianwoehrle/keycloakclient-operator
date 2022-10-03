@@ -24,6 +24,27 @@ the Operator handle the creation of the KeycloakClient in Keycloak.
 
 ## Try it out.
 
+*Note*: You will need a running Kubernetes cluster to use the Operator
+
+1. Run `make cluster/prepare` # This will apply the necessary Custom Resource Definitions (CRDs) and RBAC rules to the clusters
+2. Run `kubectl apply -f deploy/operator.yaml` # This will start the operator in the current namespace
+
+### Install keycloak with a realm
+
+This installs keycloak wih a realm test-realm via the codecentric helm chart
+
+1. Run `make cluster/installKeycloak`
+
+### Creating Keycloak Instance and realm
+Once the CRDs and RBAC rules are applied and the operator is running, install the keycloak-cr, the keycloakrealm-cr and the keycloakclient-cr.
+The keycloak- and keycloakrealm-crs are only used to reference keycloak and the keycloakrealm.
+
+The keycloakclient-cr actually triggers the keycloakclient-operator to create the keycloakclient in the references keycloakcloakrealm.
+
+
+1. Run `make cluster/create/examples`
+
+
 ### Run the Keycloak Client Operator
 
 
@@ -70,29 +91,7 @@ Please remember to provide a good summary, description as well as steps to repro
 | [KeycloakClient](./deploy/crds/keycloak.org_keycloakclients_crd.yaml) | Represents a client in a keycloak server                 |
 
 
-## Deployment to a Kubernetes cluster
 
-
-## Developer Reference
-*Note*: You will need a running Kubernetes cluster to use the Operator
-
-1. Run `make cluster/prepare` # This will apply the necessary Custom Resource Definitions (CRDs) and RBAC rules to the clusters
-2. Run `kubectl apply -f deploy/operator.yaml` # This will start the operator in the current namespace
-
-### Install keycloak with a realm 
-
-This installs keycloak wih a realm test-realm via the codecentric helm chart
-
-1. Run `make cluster/installKeycloak`
-
-### Creating Keycloak Instance and realm
-Once the CRDs and RBAC rules are applied and the operator is running, install the keycloak-cr, the keycloakrealm-cr and the keycloakclient-cr.
-The keycloak- and keycloakrealm-crs are only used to reference keycloak and the keycloakrealm.
-
-The keycloakclient-cr actually triggers the keycloakclient-operator to create the keycloakclient in the references keycloakcloakrealm.
-
-
-1. Run `make cluster/create/examples`
 
 <!--
 
