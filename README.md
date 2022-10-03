@@ -26,8 +26,12 @@ the Operator handle the creation of the KeycloakClient in Keycloak.
 
 *Note*: You will need a running Kubernetes cluster to use the Operator
 
-1. Run `make cluster/prepare` # This will apply the necessary Custom Resource Definitions (CRDs) and RBAC rules to the clusters
-2. Run `kubectl apply -f deploy/operator.yaml` # This will start the operator in the current namespace
+1. Run `make cluster/prepare` 
+
+This will apply the necessary Custom Resource Definitions (CRDs) and RBAC rules to the clusters
+2. Run `kubectl apply -f deploy/operator.yaml`
+
+This will start the operator in the current namespace
 
 ### Install keycloak with a realm
 
@@ -35,7 +39,21 @@ This installs keycloak wih a realm test-realm via the codecentric helm chart
 
 1. Run `make cluster/installKeycloak`
 
-### Creating Keycloak Instance and realm
+This installs Keycloak on your cluster.
+To access Keycloak run the following command:
+
+`export POD_NAME=$(kubectl get pods --namespace keycloak -l "app.kubernetes.io/name=keycloakx,app.kubernetes.io/instance=keycloak" -o name)
+
+kubectl --namespace keycloak port-forward "$POD_NAME" 8080
+`
+
+And access the application via the URL 
+`http://localhost:8080/auth/`
+
+The credentials are admin/admin
+
+
+### Creating Keycloak CustomRessources, to let the Operator manage KeycloakClients on the KeycloakInstallation
 Once the CRDs and RBAC rules are applied and the operator is running, install the keycloak-cr, the keycloakrealm-cr and the keycloakclient-cr.
 The keycloak- and keycloakrealm-crs are only used to reference keycloak and the keycloakrealm.
 
