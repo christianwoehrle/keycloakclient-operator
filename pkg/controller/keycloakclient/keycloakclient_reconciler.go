@@ -1,6 +1,7 @@
 package keycloakclient
 
 import (
+	"bytes"
 	"fmt"
 
 	"github.com/christianwoehrle/keycloakclient-operator/pkg/controller/keycloakuser"
@@ -38,6 +39,14 @@ func (i *KeycloakClientReconciler) Reconcile(state *common.ClientState, cr *kc.K
 	}
 
 	if state.Client == nil {
+		if cr.Spec.Client.Secret == "" {
+			if state.ClientSecret != nil {
+				if !bytes.Equal(state.ClientSecret.Data["CLIENT_SECRET"], []byte("")) {
+					log.Info("reconstruct Secret for " + cr.Spec.Client.ID)
+					cr.Spec.Client.Secret = string(state.ClientSecret.Data["CLIENT_SECRET"])
+				}
+			}
+		}
 		desired.AddAction(i.getCreatedClientState(state, cr))
 	} else {
 		desired.AddAction(i.getUpdatedClientState(state, cr))
