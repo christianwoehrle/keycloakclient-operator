@@ -174,7 +174,7 @@ func (r *ReconcileKeycloakClient) Reconcile(request reconcile.Request) (reconcil
 	}
 
 	log.Info("desired cluster state met")
-	return reconcile.Result{RequeueAfter: RequeueDelay}, err
+	return reconcile.Result{Requeue: false}, err
 
 }
 
