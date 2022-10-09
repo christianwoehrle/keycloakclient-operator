@@ -26,7 +26,6 @@ var log = logf.Log.WithName("controller_keycloakclient")
 const (
 	ClientFinalizer   = "client.cleanup"
 	RequeueDelayError = 60 * time.Second
-	RequeueDelay      = 300 * time.Second
 	ControllerName    = "keycloakclient-controller"
 )
 
@@ -175,7 +174,7 @@ func (r *ReconcileKeycloakClient) Reconcile(request reconcile.Request) (reconcil
 	}
 
 	log.Info("desired cluster state met")
-	return reconcile.Result{Requeue: false}, nil
+	return reconcile.Result{RequeueAfter: RequeueDelay}, err
 
 }
 
