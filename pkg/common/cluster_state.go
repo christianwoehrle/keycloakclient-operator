@@ -2,7 +2,6 @@ package common
 
 import (
 	"context"
-	"time"
 
 	kc "github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
 	"github.com/christianwoehrle/keycloakclient-operator/pkg/model"
@@ -12,13 +11,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
-
-// BackupTime is used for generating a unique Backup job name
-var BackupTime string
-
-func init() {
-	BackupTime = time.Now().Format("20060102-150405")
-}
 
 // The desired cluster state is defined by a list of actions that have to be run to
 // get from the current state to the desired state
