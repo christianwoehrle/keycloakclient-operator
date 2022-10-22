@@ -13,19 +13,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
-// These kinds are not provided by the openshift api
 const (
-	RouteKind                 = "Route"
-	JobKind                   = "Job"
-	CronJobKind               = "CronJob"
-	SecretKind                = "Secret"
-	StatefulSetKind           = "StatefulSet"
-	ServiceKind               = "Service"
-	IngressKind               = "Ingress"
-	DeploymentKind            = "Deployment"
-	PersistentVolumeClaimKind = "PersistentVolumeClaim"
-	PodDisruptionBudgetKind   = "PodDisruptionBudget"
-	OpenShiftAPIServerKind    = "OpenShiftAPIServer"
+	SecretKind = "Secret"
 )
 
 func WatchSecondaryResource(c controller.Controller, controllerName string, resourceKind string, objectTypetoWatch runtime.Object, cr runtime.Object) error {
