@@ -17,7 +17,7 @@ const (
 	RealmsGetPath          = "/auth/admin/realms/%s"
 	RealmsCreatePath       = "/auth/admin/realms"
 	RealmsDeletePath       = "/auth/admin/realms/%s"
-	UserCreatePath         = "/auth/admin/realms/%s/users"
+	ClientCreatePath       = "/auth/admin/realms/%s/clients"
 	UserDeletePath         = "/auth/admin/realms/%s/users/%s"
 	UserGetPath            = "/auth/admin/realms/%s/users/%s"
 	UserFindByUsernamePath = "/auth/admin/realms/%s/users?username=%s&max=-1"
@@ -33,6 +33,13 @@ func getDummyRealm() *v1alpha1.KeycloakRealm {
 				Enabled: false,
 			},
 		},
+	}
+}
+func getDummyClient() *v1alpha1.KeycloakAPIClient {
+	return &v1alpha1.KeycloakAPIClient{
+		ID:      "dummy",
+		Name:    "dummy",
+		Enabled: false,
 	}
 }
 
@@ -177,4 +184,29 @@ func TestClient_useKeycloakServerCertificate(t *testing.T) {
 	assert.NoError(t, err)
 	defer resp.Body.Close()
 	assert.Equal(t, resp.StatusCode, 200)
+}
+
+func TestClient_CreateKeycloakCLient(t *testing.T) {
+	// given
+	realm := getDummyRealm()
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		assert.Equal(t, fmt.Sprintf(ClientCreatePath, realm.Spec.Realm.Realm), req.URL.Path)
+		w.WriteHeader(204)
+	})
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	client := Client{
+		requester: server.Client(),
+		URL:       server.URL,
+		token:     "dummy",
+	}
+
+	// when
+	_, err := client.CreateClient(getDummyClient(), realm.Spec.Realm.Realm)
+
+	// then
+	// correct path expected on httptest server
+	assert.NoError(t, err)
 }
