@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/json"
 	"encoding/pem"
 	"fmt"
 	"net/http"
@@ -14,14 +15,10 @@ import (
 )
 
 const (
-	RealmsGetPath          = "/auth/admin/realms/%s"
-	RealmsCreatePath       = "/auth/admin/realms"
-	RealmsDeletePath       = "/auth/admin/realms/%s"
-	ClientCreatePath       = "/auth/admin/realms/%s/clients"
-	UserDeletePath         = "/auth/admin/realms/%s/users/%s"
-	UserGetPath            = "/auth/admin/realms/%s/users/%s"
-	UserFindByUsernamePath = "/auth/admin/realms/%s/users?username=%s&max=-1"
-	TokenPath              = "/auth/realms/master/protocol/openid-connect/token" // nolint
+	RealmsCreatePath = "/auth/admin/realms"
+	RealmsDeletePath = "/auth/admin/realms/%s"
+	ClientCreatePath = "/auth/admin/realms/%s/clients"
+	TokenPath        = "/auth/realms/master/protocol/openid-connect/token" // nolint
 )
 
 func getDummyRealm() *v1alpha1.KeycloakRealm {
@@ -189,10 +186,27 @@ func TestClient_useKeycloakServerCertificate(t *testing.T) {
 func TestClient_CreateKeycloakCLient(t *testing.T) {
 	// given
 	realm := getDummyRealm()
+	keycloakClient := getDummyClient()
+	var method string
+	var ID string
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		assert.Equal(t, fmt.Sprintf(ClientCreatePath, realm.Spec.Realm.Realm), req.URL.Path)
-		w.WriteHeader(204)
+		method = req.Method
+
+		var kcc v1alpha1.KeycloakAPIClient
+
+		err := json.NewDecoder(req.Body).Decode(&kcc)
+
+		if err != nil {
+			fmt.Println("Err:", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		ID = kcc.ID
+		w.Header().Set("location", "https://keycloak.tue.private.dwpbank.io/auth/admin/realms/dwpbank/clients/4710701c-3f81-4b96-8ba0-f6b73651fbca")
+		w.WriteHeader(201)
+
 	})
 	server := httptest.NewServer(handler)
 	defer server.Close()
@@ -204,9 +218,12 @@ func TestClient_CreateKeycloakCLient(t *testing.T) {
 	}
 
 	// when
-	_, err := client.CreateClient(getDummyClient(), realm.Spec.Realm.Realm)
+	uid, err := client.CreateClient(keycloakClient, realm.Spec.Realm.Realm)
 
 	// then
 	// correct path expected on httptest server
 	assert.NoError(t, err)
+	assert.Equal(t, "4710701c-3f81-4b96-8ba0-f6b73651fbca", uid)
+	assert.Equal(t, method, "POST")
+	assert.Equal(t, keycloakClient.ID, ID)
 }
