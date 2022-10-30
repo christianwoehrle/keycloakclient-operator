@@ -9,11 +9,16 @@ RUN cd /src && \
 
 #yum install make
 
+FROM ubuntu:latest AS user-distro
+RUN useradd -u 10001 scratchuser
+
+
 
 # final stage
 FROM scratch
 
-
+COPY --from=user-distro /etc/passwd /etc/passwd
+USER scratchuser
 ##LABELS
 
 COPY --from=build-env /src/BUILD_INFO /src/BUILD_INFO
