@@ -2,7 +2,6 @@ module github.com/christianwoehrle/keycloakclient-operator
 
 require (
 	github.com/coreos/prometheus-operator v0.40.0
-	github.com/go-openapi/spec v0.19.7
 	github.com/integr8ly/grafana-operator/v3 v3.6.0
 	github.com/json-iterator/go v1.1.12
 	github.com/operator-framework/operator-sdk v0.18.2
