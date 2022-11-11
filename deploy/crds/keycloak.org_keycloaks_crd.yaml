@@ -46,6 +46,7 @@ spec:
                     type: string
                 type: object
               unmanaged:
+                default: true
                 description: When set to true, this Keycloak will be marked as unmanaged
                   and will not be managed by this operator. It can then be used for
                   targeting purposes.

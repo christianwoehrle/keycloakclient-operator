@@ -1,16 +1,7 @@
 package v1alpha1
 
 import (
-	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-)
-
-type TLSTerminationType string
-
-var (
-	DefaultTLSTermintation        TLSTerminationType
-	ReencryptTLSTerminationType   TLSTerminationType = "reencrypt"
-	PassthroughTLSTerminationType TLSTerminationType = "passthrough"
 )
 
 // KeycloakSpec defines the desired state of Keycloak.
@@ -19,21 +10,11 @@ type KeycloakSpec struct {
 	// When set to true, this Keycloak will be marked as unmanaged and will not be managed by this operator.
 	// It can then be used for targeting purposes.
 	// +optional
+	// +kubebuilder:default:=true
 	Unmanaged bool `json:"unmanaged,omitempty"`
 	// Contains configuration for external Keycloak instances. Unmanaged needs to be set to true to use this.
 	// +optional
 	External KeycloakExternal `json:"external"`
-}
-
-type DeploymentSpec struct {
-	// Resources (Requests and Limits) for the Pods.
-	// +optional
-	Resources corev1.ResourceRequirements `json:"resources,omitempty"`
-	// ImagePullPolicy for the Containers.
-	// +kubebuilder:validation:Enum={Always,Never,IfNotPresent}
-	// +kubebuilder:default:=Always
-	// +optional
-	ImagePullPolicy corev1.PullPolicy `json:"imagePullPolicy,omitempty"`
 }
 
 type KeycloakExternal struct {
@@ -44,14 +25,6 @@ type KeycloakExternal struct {
 	// +optional
 	URL string `json:"url,omitempty"`
 }
-
-type MigrationStrategy string
-
-var (
-	NoStrategy       MigrationStrategy
-	StrategyRecreate MigrationStrategy = "recreate"
-	StrategyRolling  MigrationStrategy = "rolling"
-)
 
 // KeycloakStatus defines the observed state of Keycloak.
 // +k8s:openapi-gen=true

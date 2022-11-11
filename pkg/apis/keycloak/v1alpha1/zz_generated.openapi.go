@@ -8,8 +8,8 @@
 package v1alpha1
 
 import (
-	spec "github.com/go-openapi/spec"
 	common "k8s.io/kube-openapi/pkg/common"
+	spec "k8s.io/kube-openapi/pkg/validation/spec"
 )
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
@@ -168,6 +168,11 @@ func schema_pkg_apis_keycloak_v1alpha1_KeycloakClientSpec(ref common.ReferenceCa
 						},
 					},
 					"serviceAccountRealmRoles": {
+						VendorExtensible: spec.VendorExtensible{
+							Extensions: spec.Extensions{
+								"x-kubernetes-list-type": "set",
+							},
+						},
 						SchemaProps: spec.SchemaProps{
 							Description: "Service account realm roles for this client.",
 							Type:        []string{"array"},

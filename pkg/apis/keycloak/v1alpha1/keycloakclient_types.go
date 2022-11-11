@@ -23,6 +23,7 @@ type KeycloakClientSpec struct {
 	// +optional
 	ScopeMappings *MappingsRepresentation `json:"scopeMappings,omitempty"`
 	// Service account realm roles for this client.
+	// +listType=set
 	// +optional
 	ServiceAccountRealmRoles []string `json:"serviceAccountRealmRoles,omitempty"`
 	// Service account client roles for this client.

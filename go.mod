@@ -4,18 +4,17 @@ require (
 	github.com/coreos/prometheus-operator v0.40.0
 	github.com/go-openapi/spec v0.19.7
 	github.com/integr8ly/grafana-operator/v3 v3.6.0
-	github.com/json-iterator/go v1.1.10
+	github.com/json-iterator/go v1.1.12
 	github.com/operator-framework/operator-sdk v0.18.2
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.6.1
-	golang.org/x/tools v0.1.1 // indirect
 	k8s.io/api v0.20.6
 	k8s.io/apiextensions-apiserver v0.20.6
 	k8s.io/apimachinery v0.20.6
 	k8s.io/client-go v12.0.0+incompatible
-	k8s.io/kube-openapi v0.0.0-20201113171705-d219536bb9fd
+	k8s.io/kube-openapi v0.0.0-20221012153701-172d655c2280
 	sigs.k8s.io/controller-runtime v0.6.0
 
 )
