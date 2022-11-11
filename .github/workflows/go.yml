@@ -13,15 +13,6 @@ jobs:
     - run: go version
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
-    - name: Build
-      uses: ouzi-dev/go-make-action@v1.5.0
-      env:
-        GOROOT: ""
-      with:
-        target: code/compile
-    - name: Verify vendor directory
-      uses: ouzi-dev/go-make-action@v1.5.0
-      env:
-        GOROOT: ""
-      with:
-        target: setup/mod/verify
+    - run: go mod verify
+    - run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o=./tmp/_output/bin/keycloakclient-operator -mod=vendor ./cmd/manager
+
