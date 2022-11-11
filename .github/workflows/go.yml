@@ -14,13 +14,13 @@ jobs:
     - name: Check out code into the Go module directory
       uses: actions/checkout@v2
     - name: Build
-      uses: ouzi-dev/go-make-action@v1.3.0
+      uses: ouzi-dev/go-make-action@v1.5.0
       env:
         GOROOT: ""
       with:
         target: code/compile
     - name: Verify vendor directory
-      uses: ouzi-dev/go-make-action@v1.3.0
+      uses: ouzi-dev/go-make-action@v1.5.0
       env:
         GOROOT: ""
       with:
