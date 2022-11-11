@@ -39,6 +39,7 @@ cluster/clean:
 	
 
 # see https://artifacthub.io/packages/helm/codecentric/keycloakx?modal=install
+
 .PHONY: cluster/installKeycloak
 cluster/installKeycloak:
 	@helm repo add codecentric "https://codecentric.github.io/helm-charts"
@@ -139,6 +140,7 @@ code/run:
 
 .PHONY: code/compile
 code/compile:
+	@go version
 	@GOOS=${GOOS} GOARCH=${GOARCH} CGO_ENABLED=${CGO_ENABLED} go build -o=$(COMPILE_TARGET) -mod=vendor ./cmd/manager
 
 .PHONY: code/gen
