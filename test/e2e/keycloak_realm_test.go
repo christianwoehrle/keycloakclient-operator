@@ -25,6 +25,12 @@ func getKeycloakRealmCR(namespace string) *keycloakv1alpha1.KeycloakRealm {
 			InstanceSelector: &metav1.LabelSelector{
 				MatchLabels: CreateLabel(namespace),
 			},
+			Unmanaged: true,
+			Realm: &keycloakv1alpha1.KeycloakAPIRealm{
+				Enabled: true,
+				Realm:   "test-realm",
+				ID:      "test-realm",
+			},
 		},
 	}
 }
@@ -32,7 +38,7 @@ func getKeycloakRealmCR(namespace string) *keycloakv1alpha1.KeycloakRealm {
 func NewKeycloakRealmsCRDTestStruct() *CRDTestStruct {
 	return &CRDTestStruct{
 		prepareEnvironmentSteps: []environmentInitializationStep{
-			prepareKeycloaksCR,
+			prepareUnmanagedKeycloaksCR,
 		},
 		testSteps: map[string]deployedOperatorTestStep{
 			"keycloakRealmBasicTest": {

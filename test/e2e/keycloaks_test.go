@@ -15,7 +15,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	keycloakv1alpha1 "github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
-	"github.com/christianwoehrle/keycloakclient-operator/pkg/model"
 	framework "github.com/operator-framework/operator-sdk/pkg/test"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -31,17 +30,6 @@ func NewUnmanagedKeycloaksCRDTestStruct() *CRDTestStruct {
 		},
 		testSteps: map[string]deployedOperatorTestStep{
 			"keycloakUnmanagedDeploymentTest": {testFunction: keycloakUnmanagedDeploymentTest},
-		},
-	}
-}
-
-func NewKeycloaksWithDefaultImagePullPolicyTestStruct() *CRDTestStruct {
-	return &CRDTestStruct{
-		prepareEnvironmentSteps: []environmentInitializationStep{
-			prepareKeycloaksCR,
-		},
-		testSteps: map[string]deployedOperatorTestStep{
-			"keycloakDeploymentDefaultImagePullPolicyTest": {testFunction: keycloakDeploymentDefaultImagePullPolicyTest},
 		},
 	}
 }
@@ -94,24 +82,6 @@ func getExternalKeycloakSecret(f *framework.Framework, namespace string) (*v1.Se
 		StringData: secret.StringData,
 		Type:       secret.Type,
 	}, nil
-}
-
-func prepareKeycloaksCR(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string) error {
-	return deployKeycloaksCR(t, f, ctx, namespace, getKeycloakCR(namespace))
-}
-
-func deployKeycloaksCR(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string, keycloakCR *keycloakv1alpha1.Keycloak) error {
-	err := Create(f, keycloakCR, ctx)
-	if err != nil {
-		return err
-	}
-
-	err = WaitForStatefulSetReplicasReady(t, f.KubeClient, model.ApplicationName, namespace)
-	if err != nil {
-		return err
-	}
-
-	return err
 }
 
 func prepareUnmanagedKeycloaksCR(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string) error {
@@ -203,10 +173,10 @@ func keycloakUnmanagedDeploymentTest(t *testing.T, f *framework.Framework, ctx *
 		if err != nil {
 			return errors.Errorf("list StatefulSet failed, ignoring for %v: %v", pollRetryInterval, err)
 		}
-		if len(sts.Items) == 0 {
+		if len(sts.Items) != 1 {
 			return nil
 		}
-		return errors.Errorf("found Statefulsets, this shouldn't be the case")
+		return errors.Errorf("should find one Statefulset, as the cluster has been prepared with a keycloak isntallation")
 	})
 	return err
 }
