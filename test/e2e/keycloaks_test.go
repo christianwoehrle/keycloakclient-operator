@@ -20,10 +20,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-const podName = "keycloak-0"
-const extraLabelName = "extra"
-const extraLabelValue = "value"
-
 func NewExternalKeycloaksCRDTestStruct() *CRDTestStruct {
 	return &CRDTestStruct{
 		prepareEnvironmentSteps: []environmentInitializationStep{
@@ -56,7 +52,7 @@ func getUnmanagedKeycloakCR(namespace string) *keycloakv1alpha1.Keycloak {
 func getExternalKeycloakCR(namespace string, url string) *keycloakv1alpha1.Keycloak {
 	keycloak := getUnmanagedKeycloakCR(namespace)
 	keycloak.Name = testKeycloakCRName
-	keycloak.Labels = CreateExternalLabel(namespace)
+	keycloak.Labels = CreateLabel(namespace)
 	keycloak.Spec.External.Enabled = true
 	keycloak.Spec.External.URL = url
 	return keycloak
@@ -103,7 +99,7 @@ func prepareUnmanagedKeycloaksCR(t *testing.T, f *framework.Framework, ctx *fram
 }
 
 func prepareExternalKeycloaksCR(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string) error {
-	keycloakURL := "keycloak.local"
+	keycloakURL := "http://keycloak.local:8080"
 
 	fmt.Println("before get secret")
 	secret, err := getExternalKeycloakSecret(f, namespace)

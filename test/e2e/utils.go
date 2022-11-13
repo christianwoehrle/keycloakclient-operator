@@ -236,10 +236,6 @@ func CreateLabel(namespace string) map[string]string {
 	return map[string]string{"app": "kc-in-" + namespace}
 }
 
-func CreateExternalLabel(namespace string) map[string]string {
-	return map[string]string{"app": "ext-kc-in-" + namespace}
-}
-
 func GetSuccessfulResponseBody(url string) ([]byte, error) {
 	client := &http.Client{}
 	response, err := client.Get(url)

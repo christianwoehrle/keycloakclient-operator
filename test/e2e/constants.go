@@ -13,5 +13,5 @@ const (
 	cleanupRetryInterval             = time.Second * 5
 	cleanupTimeout                   = time.Minute * 2
 	pollRetryInterval                = time.Second * 10
-	pollTimeout                      = time.Minute * 10
+	pollTimeout                      = time.Minute * 1
 )
