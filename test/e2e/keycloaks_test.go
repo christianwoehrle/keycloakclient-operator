@@ -2,8 +2,6 @@ package e2e
 
 import (
 	"context"
-	"crypto/tls"
-	"net/http"
 	"testing"
 
 	"k8s.io/client-go/kubernetes"
@@ -123,43 +121,6 @@ func prepareExternalKeycloaksCR(t *testing.T, f *framework.Framework, ctx *frame
 	if err != nil {
 		return err
 	}
-
-	return err
-}
-
-func keycloakDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string) error {
-	keycloakCR := getDeployedKeycloakCR(f, namespace)
-	assert.NotEmpty(t, keycloakCR.Status.ExternalURL)
-
-	err := WaitForKeycloakToBeReady(t, f, namespace, testKeycloakCRName)
-	if err != nil {
-		return err
-	}
-
-	keycloakURL := keycloakCR.Status.ExternalURL
-
-	// Skipping TLS verification is actually part of the test. In Kubernetes, if there's no signing
-	// manager installed, Keycloak will generate its own, self-signed cert. Of course
-	// we don't have a matching truststore for it, hence we need to skip TLS verification.
-	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //nolint
-
-	err = WaitForSuccessResponse(t, f, keycloakURL+"/auth")
-	if err != nil {
-		return err
-	}
-
-	metricsBody, err := GetSuccessfulResponseBody(keycloakURL + "/auth/realms/master/metrics")
-	if err != nil {
-		return err
-	}
-
-	masterRealmBody, err := GetSuccessfulResponseBody(keycloakURL + "/auth/realms/master")
-	if err != nil {
-		return err
-	}
-
-	// there should be a redirect/rewrite from the metrics endpoint to master realm
-	assert.Equal(t, masterRealmBody, metricsBody)
 
 	return err
 }
