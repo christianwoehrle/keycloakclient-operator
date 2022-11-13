@@ -2,7 +2,10 @@ package e2e
 
 import (
 	"context"
+	"fmt"
 	"testing"
+
+	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"k8s.io/client-go/kubernetes"
 
@@ -21,13 +24,13 @@ const podName = "keycloak-0"
 const extraLabelName = "extra"
 const extraLabelValue = "value"
 
-func NewUnmanagedKeycloaksCRDTestStruct() *CRDTestStruct {
+func NewExternalKeycloaksCRDTestStruct() *CRDTestStruct {
 	return &CRDTestStruct{
 		prepareEnvironmentSteps: []environmentInitializationStep{
-			prepareUnmanagedKeycloaksCR,
+			prepareExternalKeycloaksCR,
 		},
 		testSteps: map[string]deployedOperatorTestStep{
-			"keycloakUnmanagedDeploymentTest": {testFunction: keycloakUnmanagedDeploymentTest},
+			"keycloakExternalDeploymentTest": {testFunction: keycloakExternalDeploymentTest},
 		},
 	}
 }
@@ -45,14 +48,14 @@ func getKeycloakCR(namespace string) *keycloakv1alpha1.Keycloak {
 
 func getUnmanagedKeycloakCR(namespace string) *keycloakv1alpha1.Keycloak {
 	keycloak := getKeycloakCR(namespace)
-	keycloak.Name = testKeycloakUnmanagedCRName
+	keycloak.Name = testKeycloakCRName
 	keycloak.Spec.Unmanaged = true
 	return keycloak
 }
 
 func getExternalKeycloakCR(namespace string, url string) *keycloakv1alpha1.Keycloak {
 	keycloak := getUnmanagedKeycloakCR(namespace)
-	keycloak.Name = testKeycloakExternalCRName
+	keycloak.Name = testKeycloakCRName
 	keycloak.Labels = CreateExternalLabel(namespace)
 	keycloak.Spec.External.Enabled = true
 	keycloak.Spec.External.URL = url
@@ -67,13 +70,15 @@ func getDeployedKeycloakCR(f *framework.Framework, namespace string) keycloakv1a
 
 func getExternalKeycloakSecret(f *framework.Framework, namespace string) (*v1.Secret, error) {
 	secret, err := f.KubeClient.CoreV1().Secrets(namespace).Get(context.TODO(), "credential-"+testKeycloakCRName, metav1.GetOptions{})
+
+	fmt.Println(err)
 	if err != nil {
 		return nil, err
 	}
 
 	return &v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "credential-" + testKeycloakExternalCRName,
+			Name:      "credential-" + testKeycloakCRName,
 			Namespace: namespace,
 		},
 		Data:       secret.Data,
@@ -89,7 +94,7 @@ func prepareUnmanagedKeycloaksCR(t *testing.T, f *framework.Framework, ctx *fram
 		return err
 	}
 
-	err = WaitForKeycloakToBeReady(t, f, namespace, testKeycloakUnmanagedCRName)
+	err = WaitForKeycloakToBeReady(t, f, namespace, testKeycloakCRName)
 	if err != nil {
 		return err
 	}
@@ -100,23 +105,43 @@ func prepareUnmanagedKeycloaksCR(t *testing.T, f *framework.Framework, ctx *fram
 func prepareExternalKeycloaksCR(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string) error {
 	keycloakURL := "keycloak.local"
 
+	fmt.Println("before get secret")
 	secret, err := getExternalKeycloakSecret(f, namespace)
-	if err != nil {
+	if err != nil && !apiErrors.IsNotFound(err) {
+		fmt.Println("err in getExternalKeycloakSecret")
 		return err
 	}
 
-	err = Create(f, secret, ctx)
-	if err != nil {
-		return err
+	fmt.Println("secret nicht da aber kein fehler, anlegen")
+	if err != nil && !apiErrors.IsNotFound(err) {
+		secret = &v1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "credential-" + testKeycloakCRName,
+				Namespace: namespace,
+			},
+			StringData: map[string]string{
+				"user":     "admin",
+				"password": "admin",
+			},
+			Type: v1.SecretTypeOpaque,
+		}
+
+		err = Create(f, secret, ctx)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
 	}
+	fmt.Println("secret anlegen klappt")
 
 	externalKeycloakCR := getExternalKeycloakCR(namespace, keycloakURL)
+
 	err = Create(f, externalKeycloakCR, ctx)
-	if err != nil {
+	if err != nil && !apiErrors.IsAlreadyExists(err) {
 		return err
 	}
 
-	err = WaitForKeycloakToBeReady(t, f, namespace, testKeycloakExternalCRName)
+	err = WaitForKeycloakToBeReady(t, f, namespace, testKeycloakCRName)
 	if err != nil {
 		return err
 	}
@@ -124,27 +149,29 @@ func prepareExternalKeycloaksCR(t *testing.T, f *framework.Framework, ctx *frame
 	return err
 }
 
-func keycloakUnmanagedDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string) error {
+func keycloakExternalDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string) error {
 	keycloakCR := getDeployedKeycloakCR(f, namespace)
-	assert.Empty(t, keycloakCR.Status.ExternalURL)
+	assert.NotEmpty(t, keycloakCR.Status.ExternalURL)
+	fmt.Println("keycloakExternalDeploymentTest")
 
+	sts, e := f.KubeClient.AppsV1().StatefulSets(namespace).List(context.TODO(), metav1.ListOptions{})
+	fmt.Println(sts)
+	fmt.Println(e)
+	fmt.Println(len(sts.Items))
 	err := WaitForCondition(t, f.KubeClient, func(t *testing.T, c kubernetes.Interface) error {
+		fmt.Println("get sts")
 		sts, err := f.KubeClient.AppsV1().StatefulSets(namespace).List(context.TODO(), metav1.ListOptions{})
+		fmt.Println("got sts")
+		fmt.Println(err)
+		fmt.Println(len(sts.Items))
+
 		if err != nil {
 			return errors.Errorf("list StatefulSet failed, ignoring for %v: %v", pollRetryInterval, err)
 		}
-		if len(sts.Items) != 1 {
+		if len(sts.Items) == 1 {
 			return nil
 		}
-		return errors.Errorf("should find one Statefulset, as the cluster has been prepared with a keycloak isntallation")
+		return errors.Errorf("should find one Statefulset, as the cluster has been prepared with a keycloak installation")
 	})
-	return err
-}
-
-func keycloakDeploymentDefaultImagePullPolicyTest(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string) error {
-	// check that the default imagePolicy is set to Always, even though not defined by the user
-	keycloakPod := v1.Pod{}
-	err := GetNamespacedObject(f, namespace, podName, &keycloakPod)
-	assert.Contains(t, keycloakPod.Spec.Containers[0].ImagePullPolicy, v1.PullAlways)
 	return err
 }

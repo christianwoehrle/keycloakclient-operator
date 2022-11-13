@@ -30,8 +30,8 @@ var ErrDeprecatedClientSecretFound = errors.New("deprecated client secret found"
 func NewKeycloakClientsCRDTestStruct() *CRDTestStruct {
 	return &CRDTestStruct{
 		prepareEnvironmentSteps: []environmentInitializationStep{
-			prepareExternalKeycloaksCR,
-			prepareKeycloakRealmCR,
+			//			prepareExternalKeycloaksCR,
+			//			prepareKeycloakRealmCR,
 		},
 		testSteps: map[string]deployedOperatorTestStep{
 			"keycloakClientBasicTest": {
@@ -324,6 +324,7 @@ func keycloakClientDeprecatedClientSecretTest(t *testing.T, framework *test.Fram
 func keycloakClientRolesTest(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
 	// create
 	client := getKeycloakClientCR(namespace, false)
+
 	client.Spec.Roles = []keycloakv1alpha1.RoleRepresentation{{Name: "a"}, {Name: "b"}, {Name: "c"}}
 	err := Create(framework, client, ctx)
 	if err != nil {
@@ -425,6 +426,7 @@ func getRole(retrievedRoles []keycloakv1alpha1.RoleRepresentation, roleName stri
 
 func waitForClientRoles(t *testing.T, framework *test.Framework, keycloakCR keycloakv1alpha1.Keycloak, clientCR *keycloakv1alpha1.KeycloakClient, expected []keycloakv1alpha1.RoleRepresentation) error {
 	return WaitForConditionWithClient(t, framework, keycloakCR, func(authenticatedClient common.KeycloakInterface) error {
+		fmt.Println("waitForClientRoles")
 		roles, err := authenticatedClient.ListClientRoles(clientCR.Spec.Client.ID, realmName)
 		if err != nil {
 			return err
@@ -461,6 +463,7 @@ func waitForClientRoles(t *testing.T, framework *test.Framework, keycloakCR keyc
 
 func waitForDefaultClientRoles(t *testing.T, framework *test.Framework, keycloakCR keycloakv1alpha1.Keycloak, clientCR *keycloakv1alpha1.KeycloakClient, expectedRoleNames ...string) error {
 	return WaitForConditionWithClient(t, framework, keycloakCR, func(authenticatedClient common.KeycloakInterface) error {
+		fmt.Println("waitForDefaultClientRoles")
 		fail := false
 
 		realm, err := authenticatedClient.GetRealm(realmName)

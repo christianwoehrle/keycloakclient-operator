@@ -3,10 +3,7 @@ package e2e
 import "time"
 
 const (
-	ApplicationName                  = "keycloak-keycloakx"
 	testKeycloakCRName               = "keycloak-test"
-	testKeycloakUnmanagedCRName      = "unmanaged-keycloak-test"
-	testKeycloakExternalCRName       = "external-keycloak-test"
 	operatorCRName                   = "keycloak-operator"
 	testKeycloakRealmCRName          = "keycloak-realm-test"
 	testKeycloakClientCRName         = "keycloak-client-test"

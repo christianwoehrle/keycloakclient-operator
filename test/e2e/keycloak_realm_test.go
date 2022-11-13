@@ -1,7 +1,10 @@
 package e2e
 
 import (
+	"fmt"
 	"testing"
+
+	apiErrors "k8s.io/apimachinery/pkg/api/errors"
 
 	keycloakv1alpha1 "github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -13,6 +16,19 @@ const (
 	realmName                  = "test-realm"
 	testOperatorIDPDisplayName = "Test Operator IDP"
 )
+
+func NewKeycloakRealmsCRDTestStruct() *CRDTestStruct {
+	return &CRDTestStruct{
+		prepareEnvironmentSteps: []environmentInitializationStep{
+			prepareKeycloakRealmCR,
+		},
+		testSteps: map[string]deployedOperatorTestStep{
+			"unmanagedKeycloakRealmTest": {
+				testFunction: keycloakUnmanagedRealmTest,
+			},
+		},
+	}
+}
 
 func getKeycloakRealmCR(namespace string) *keycloakv1alpha1.KeycloakRealm {
 	return &keycloakv1alpha1.KeycloakRealm{
@@ -35,40 +51,39 @@ func getKeycloakRealmCR(namespace string) *keycloakv1alpha1.KeycloakRealm {
 	}
 }
 
-func NewKeycloakRealmsCRDTestStruct() *CRDTestStruct {
-	return &CRDTestStruct{
-		prepareEnvironmentSteps: []environmentInitializationStep{
-			prepareUnmanagedKeycloaksCR,
-		},
-		testSteps: map[string]deployedOperatorTestStep{
-			"keycloakRealmBasicTest": {
-				prepareTestEnvironmentSteps: []environmentInitializationStep{
-					prepareKeycloakRealmCR,
-				},
-				testFunction: keycloakRealmBasicTest,
-			},
-			"unmanagedKeycloakRealmTest": {
-				testFunction: keycloakUnmanagedRealmTest,
-			},
-		},
-	}
-}
-
 func prepareKeycloakRealmCR(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
 	keycloakRealmCR := getKeycloakRealmCR(namespace)
-	return Create(framework, keycloakRealmCR, ctx)
-}
+	fmt.Println("vor create realm")
 
-func keycloakRealmBasicTest(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
-	return WaitForRealmToBeReady(t, framework, namespace)
+	err := Create(framework, keycloakRealmCR, ctx)
+	if err == nil {
+		return nil
+	}
+	fmt.Println("nach create realm")
+	fmt.Println(err)
+	if err != nil && !apiErrors.IsAlreadyExists(err) {
+		fmt.Println("err1")
+
+		fmt.Println(err)
+		return err
+	}
+	if err != nil && apiErrors.IsAlreadyExists(err) {
+		err = Delete(framework, keycloakRealmCR)
+		fmt.Println("err2", err)
+		if err != nil {
+			fmt.Println("delete err", err)
+			return Create(framework, keycloakRealmCR, ctx)
+		}
+	}
+	return nil
+
 }
 
 func keycloakUnmanagedRealmTest(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
 	keycloakRealmCR := getKeycloakRealmCR(namespace)
-	keycloakRealmCR.Spec.Unmanaged = true
 
 	err := Create(framework, keycloakRealmCR, ctx)
-	if err != nil {
+	if err != nil && !apiErrors.IsAlreadyExists(err) {
 		return err
 	}
 
