@@ -32,7 +32,7 @@ func NewKeycloakClientsCRDTestStruct() *CRDTestStruct {
 		prepareEnvironmentSteps: []environmentInitializationStep{
 			prepareKeycloaksCR,
 			prepareExternalKeycloaksCR,
-			prepareKeycloakRealmWithRolesCR,
+			prepareKeycloakRealmCR,
 		},
 		testSteps: map[string]deployedOperatorTestStep{
 			"keycloakClientBasicTest": {
@@ -73,18 +73,6 @@ func NewKeycloakClientsCRDTestStruct() *CRDTestStruct {
 			},
 		},
 	}
-}
-
-func prepareKeycloakRealmWithRolesCR(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
-	keycloakRealmCR := getKeycloakRealmCR(namespace)
-	keycloakRealmCR.Spec.Realm.Roles = &keycloakv1alpha1.RolesRepresentation{}
-	for _, roleName := range []string{"realmRoleA", "realmRoleB", "realmRoleC"} {
-		keycloakRealmCR.Spec.Realm.Roles.Realm = append(keycloakRealmCR.Spec.Realm.Roles.Realm, keycloakv1alpha1.RoleRepresentation{
-			ID:   roleName,
-			Name: roleName,
-		})
-	}
-	return Create(framework, keycloakRealmCR, ctx)
 }
 
 func getKeycloakClientCR(namespace string, external bool) *keycloakv1alpha1.KeycloakClient {

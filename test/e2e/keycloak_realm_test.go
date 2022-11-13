@@ -3,6 +3,9 @@ package e2e
 import (
 	"testing"
 
+	keycloakv1alpha1 "github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"github.com/operator-framework/operator-sdk/pkg/test"
 )
 
@@ -10,6 +13,21 @@ const (
 	realmName                  = "test-realm"
 	testOperatorIDPDisplayName = "Test Operator IDP"
 )
+
+func getKeycloakRealmCR(namespace string) *keycloakv1alpha1.KeycloakRealm {
+	return &keycloakv1alpha1.KeycloakRealm{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      testKeycloakRealmCRName,
+			Namespace: namespace,
+			Labels:    CreateLabel(namespace),
+		},
+		Spec: keycloakv1alpha1.KeycloakRealmSpec{
+			InstanceSelector: &metav1.LabelSelector{
+				MatchLabels: CreateLabel(namespace),
+			},
+		},
+	}
+}
 
 func NewKeycloakRealmsCRDTestStruct() *CRDTestStruct {
 	return &CRDTestStruct{
@@ -22,9 +40,6 @@ func NewKeycloakRealmsCRDTestStruct() *CRDTestStruct {
 					prepareKeycloakRealmCR,
 				},
 				testFunction: keycloakRealmBasicTest,
-			},
-			"keycloakRealmWithEventsTest": {
-				testFunction: keycloakRealmWithEventsTest,
 			},
 			"unmanagedKeycloakRealmTest": {
 				testFunction: keycloakUnmanagedRealmTest,
@@ -57,18 +72,4 @@ func keycloakUnmanagedRealmTest(t *testing.T, framework *test.Framework, ctx *te
 	}
 
 	return err
-}
-
-func keycloakRealmWithEventsTest(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
-	keycloakRealmCR := getKeycloakRealmCR(namespace)
-
-	keycloakRealmCR.Spec.Realm.EventsEnabled = &[]bool{true}[0]
-	keycloakRealmCR.Spec.Realm.EnabledEventTypes = []string{"SEND_RESET_PASSWORD", "LOGIN_ERROR"}
-
-	err := Create(framework, keycloakRealmCR, ctx)
-	if err != nil {
-		return err
-	}
-
-	return WaitForRealmToBeReady(t, framework, namespace)
 }
