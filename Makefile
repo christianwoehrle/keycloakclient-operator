@@ -45,7 +45,7 @@ cluster/installKeycloak:
 	@helm upgrade --install keycloak codecentric/keycloakx --values "deploy/installKeycloak/values.yaml" -n $(NAMESPACE)
 
 .PHONY: cluster/installKeycloakOperator  
-cluster/installKeycloak:
+cluster/installKeycloakOperator:
 	@kubectl apply -f deploy/operator.yaml -n $(NAMESPACE)
 
 # see https://artifacthub.io/packages/helm/codecentric/keycloakx?modal=install
