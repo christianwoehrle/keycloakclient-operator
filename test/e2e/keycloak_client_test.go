@@ -9,7 +9,7 @@ import (
 	keycloakv1alpha1 "github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
 	"github.com/christianwoehrle/keycloakclient-operator/pkg/common"
 	"github.com/christianwoehrle/keycloakclient-operator/pkg/model"
-	"github.com/operator-framework/operator-sdk/test"
+	"github.com/operator-framework/operator-sdk/pkg/test"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
