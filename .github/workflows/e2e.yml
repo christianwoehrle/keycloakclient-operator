@@ -20,7 +20,9 @@ jobs:
       run: |
         minikube addons enable ingress
         pwd
-        ls
+        ls -la
+        ls -la  hack
+        ls -la  hack/modify_etc_hosts.sh
         hack/modify_etc_hosts.sh "keycloak.local"
     - name: Run e2e tests
       run: |
