@@ -3,6 +3,8 @@ kind: Ingress
 metadata:
   name: keycloak
   namespace: keycloak
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
   - host: keycloak.local
