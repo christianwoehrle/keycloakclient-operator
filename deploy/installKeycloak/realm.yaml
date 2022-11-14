@@ -46,6 +46,34 @@ data:
       "quickLoginCheckMilliSeconds": 1000,
       "maxDeltaTimeSeconds": 43200,
       "failureFactor": 30,
+      "roles": {
+        "realm": [
+          {
+            "id": "realmRoleA",
+            "name": "realmRoleA",
+            "composite": false,
+            "clientRole": false,
+            "containerId": "test-realm",
+            "attributes": {}
+          },
+          {
+            "id": "realmRoleB",
+            "name": "realmRoleB",
+            "composite": false,
+            "clientRole": false,
+            "containerId": "test-realm",
+            "attributes": {}
+          },
+          {
+            "id": "realmRoleC",
+            "name": "realmRoleC",
+            "composite": false,
+            "clientRole": false,
+            "containerId": "test-realm",
+            "attributes": {}
+          }
+        ]
+      },
       "defaultRole": {
         "id": "1735fa3e-ae7d-436e-b53e-4f0427e3b428",
         "name": "default-roles-test-realm",

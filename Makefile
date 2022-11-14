@@ -37,41 +37,36 @@ cluster/clean:
 	@kubectl delete -f deploy/crds/ || true
 	@kubectl delete namespace $(NAMESPACE) || true
 	
-.PHONY: cluster/clean/monitoring
-cluster/clean/monitoring:
-	@kubectl delete -n $(NAMESPACE) --all blackboxtargets
-	@kubectl delete -n $(NAMESPACE) --all grafanadashboards
-	@kubectl delete -n $(NAMESPACE) --all grafanadatasources
-	@kubectl delete -n $(NAMESPACE) --all applicationmonitorings
-	@kubectl delete crd grafanas.integreatly.org
-	@kubectl delete crd grafanadashboards.integreatly.org
-	@kubectl delete crd grafanadatasources.integreatly.org
-	@kubectl delete crd blackboxtargets.applicationmonitoring.integreatly.org
-	@kubectl delete crd applicationmonitorings.applicationmonitoring.integreatly.org
-	@kubectl delete namespace application-monitoring
-
-.PHONY: cluster/prepare/monitoring
-cluster/prepare/monitoring:
-	oc label namespace $(NAMESPACE) "monitoring-key=middleware"
-	$(eval _OS_PROMETHEUS_USER=$(shell oc get secrets -n openshift-monitoring grafana-datasources -o 'go-template={{index .data "prometheus.yaml"}}' | base64 --decode | jq -r '.datasources[0].basicAuthUser'))
-	$(eval _OS_PROMETHEUS_PASS=$(shell oc get secrets -n openshift-monitoring grafana-datasources -o 'go-template={{index .data "prometheus.yaml"}}' | base64 --decode | jq -r '.datasources[0].basicAuthPassword'))
-	kubectl label namespace $(NAMESPACE) monitoring-key=middleware || true
-	git clone --depth=1  git@github.com:integr8ly/application-monitoring-operator.git /tmp/keycloakclient-operator || true
-	$(MAKE) -C /tmp/keycloakclient-operator cluster/install
-	cat ./deploy/examples/monitoring/federation.yaml | sed -e 's/<user>/'"$(_OS_PROMETHEUS_USER)"'/g' | \
-		sed -e 's@<pass>@'"$(_OS_PROMETHEUS_PASS)"'@g' > /tmp/keycloakclient-operator/integreatly-additional.yaml || true
-	kubectl create secret generic integreatly-additional-scrape-configs --from-file=/tmp/keycloakclient-operator/integreatly-additional.yaml --dry-run=client -o yaml | kubectl apply -n application-monitoring -f -
-	rm -rf /tmp/keycloakclient-operator/
-
 # see https://artifacthub.io/packages/helm/codecentric/keycloakx?modal=install
 .PHONY: cluster/installKeycloak
 cluster/installKeycloak:
 	@helm repo add codecentric "https://codecentric.github.io/helm-charts"
+	@helm repo update
 	@kubectl apply -f deploy/installKeycloak/realm.yaml -n $(NAMESPACE)
 	@helm upgrade --install keycloak codecentric/keycloakx --values "deploy/installKeycloak/values.yaml" -n $(NAMESPACE)
+	@kubectl apply -f deploy/installKeycloak/credential-keycloak-test.yaml -n $(NAMESPACE)
+	@kubectl get po -A 
+	@echo sleep 240 ==================
+	@sleep 240
+	@kubectl apply -f deploy/installKeycloak/ingress.yaml -n $(NAMESPACE)
+	@kubectl get po -A 
+	@kubectl get ingress -A -owide
+	@echo ingress ================================
+	@kubectl get ingress -A -owide
+	@echo ingress ================================
+	@kubectl get ingress -A -oyaml
+	@echo sleep 120 ==================
+	@sleep 120
+	@echo ingress ================================
+	@kubectl get ingress -A -owide
+	@echo svc ================================
+	@kubectl get svc -A -owide
+	@echo curl  ================================
+	@cat /etc/hosts
+	@curl http://keycloak.local:80/auth/
 
 .PHONY: cluster/installKeycloakOperator  
-cluster/installKeycloak:
+cluster/installKeycloakOperator:
 	@kubectl apply -f deploy/operator.yaml -n $(NAMESPACE)
 
 # see https://artifacthub.io/packages/helm/codecentric/keycloakx?modal=install
