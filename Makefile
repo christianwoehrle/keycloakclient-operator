@@ -44,6 +44,7 @@ cluster/installKeycloak:
 	@kubectl apply -f deploy/installKeycloak/realm.yaml -n $(NAMESPACE)
 	@helm upgrade --install keycloak codecentric/keycloakx --values "deploy/installKeycloak/values.yaml" -n $(NAMESPACE)
 	@kubectl apply -f deploy/installKeycloak/credential-keycloak-test.yaml -n $(NAMESPACE)
+	@kubectl apply -f deploy/installKeycloak/ingress.yaml -n $(NAMESPACE)
 
 .PHONY: cluster/installKeycloakOperator  
 cluster/installKeycloakOperator:

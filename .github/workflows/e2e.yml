@@ -26,6 +26,8 @@ jobs:
         ls -la  hack
         ls -la  hack/modify_etc_hosts.sh
         hack/modify_etc_hosts.sh "keycloak.local"
+        nslookup "keycloak.local"
+        ping "keycloak.local"
     - name: Run e2e tests
       run: |
         make cluster/prepare
