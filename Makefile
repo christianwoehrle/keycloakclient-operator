@@ -45,14 +45,8 @@ cluster/installKeycloak:
 	@kubectl apply -f deploy/installKeycloak/realm.yaml -n $(NAMESPACE)
 	@helm upgrade --install keycloak codecentric/keycloakx --values "deploy/installKeycloak/values.yaml" -n $(NAMESPACE)
 	@kubectl apply -f deploy/installKeycloak/credential-keycloak-test.yaml -n $(NAMESPACE)
-	@helm repo add traefik https://helm.traefik.io/traefik
-	@kubectl create namespace traefik
-	@helm repo update
-	@helm install traefik traefik/traefik -n traefik --atomic
-	@helm ls -n traefik 
-	@helm get all  -n traefik traefik
-	@kubectl get po -n traefik 
 	@kubectl apply -f deploy/installKeycloak/ingress.yaml -n $(NAMESPACE)
+	@kubectl get po -A 
 
 
 .PHONY: cluster/installKeycloakOperator  
