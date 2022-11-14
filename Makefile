@@ -47,6 +47,8 @@ cluster/installKeycloak:
 	@kubectl get po -A 
 	@kubectl apply -f deploy/installKeycloak/credential-keycloak-test.yaml -n $(NAMESPACE)
 	@kubectl get po -A 
+	@sleep 120
+	@kubectl get po -A 
 	@kubectl get ingress -A 
 	@kubectl get mutatingwebhookconfigurations.admissionregistration.k8s.io -A 
 	@kubectl get validatingwebhookconfigurations.admissionregistration.k8s.io -A 
