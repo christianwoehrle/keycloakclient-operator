@@ -3,6 +3,7 @@ package e2e
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -33,7 +34,7 @@ type ClientCondition func(authenticatedClient common.KeycloakInterface) error
 
 func WaitForCondition(t *testing.T, c kubernetes.Interface, cond Condition) error {
 	t.Logf("waiting up to %v for condition", pollTimeout)
-	var err error
+	var err error = fmt.Errorf("Cnodition not fulfilled")
 	for start := time.Now(); time.Since(start) < pollTimeout; time.Sleep(pollRetryInterval) {
 		err = cond(t, c)
 		if err == nil {
@@ -85,6 +86,8 @@ func WaitForKeycloakToBeReady(t *testing.T, framework *framework.Framework, name
 		}
 
 		if !keycloakCR.Status.Ready {
+			t.Logf("Condition KeycloakReady not yet successful for %s", keycloakCR.Name)
+
 			keycloakCRParsed, err := json.Marshal(keycloakCR)
 			if err != nil {
 				return err
@@ -92,7 +95,7 @@ func WaitForKeycloakToBeReady(t *testing.T, framework *framework.Framework, name
 
 			return errors.Errorf("keycloak is not ready \nCurrent CR value: %s", string(keycloakCRParsed))
 		}
-
+		t.Logf("Condition KeycloakReady successful for %s", keycloakCR.Name)
 		return nil
 	})
 }
@@ -107,6 +110,8 @@ func WaitForRealmToBeReady(t *testing.T, framework *framework.Framework, namespa
 		}
 
 		if !keycloakRealmCR.Status.Ready {
+			t.Logf("Condition RealmReady not yet successful for %s", keycloakRealmCR.Name)
+
 			keycloakRealmCRParsed, err := json.Marshal(keycloakRealmCR)
 			if err != nil {
 				return err
@@ -115,6 +120,7 @@ func WaitForRealmToBeReady(t *testing.T, framework *framework.Framework, namespa
 			return errors.Errorf("keycloakRealm is not ready \nCurrent CR value: %s", string(keycloakRealmCRParsed))
 		}
 
+		t.Logf("Condition RealmReady successful %s", keycloakRealmCR.Name)
 		return nil
 	})
 }
@@ -129,6 +135,7 @@ func WaitForClientToBeReady(t *testing.T, framework *framework.Framework, namesp
 		}
 
 		if !keycloakClientCR.Status.Ready {
+			t.Logf("Condition KeycloakClientReady not yet successful for %s", keycloakClientCR.Name)
 			keycloakRealmCRParsed, err := json.Marshal(keycloakClientCR)
 			if err != nil {
 				return err
@@ -137,6 +144,7 @@ func WaitForClientToBeReady(t *testing.T, framework *framework.Framework, namesp
 			return errors.Errorf("keycloakClient is not ready \nCurrent CR value: %s", string(keycloakRealmCRParsed))
 		}
 
+		t.Logf("Condition KeycloakClientReady successful for %s", keycloakClientCR.Name)
 		return nil
 	})
 }
@@ -151,7 +159,9 @@ func WaitForClientToBeFailing(t *testing.T, framework *framework.Framework, name
 		}
 
 		if keycloakClientCR.Status.Phase != keycloakv1alpha1.PhaseFailing {
+			t.Logf("Condition KeycloakClientFailing not yet successful for %s", keycloakClientCR.Name)
 			keycloakRealmCRParsed, err := json.Marshal(keycloakClientCR)
+
 			if err != nil {
 				return err
 			}
@@ -159,6 +169,7 @@ func WaitForClientToBeFailing(t *testing.T, framework *framework.Framework, name
 			return errors.Errorf("keycloakClient is not failing \nCurrent CR value: %s", string(keycloakRealmCRParsed))
 		}
 
+		t.Logf("Condition KeycloakClientFailing successful for %s", keycloakClientCR.Name)
 		return nil
 	})
 }

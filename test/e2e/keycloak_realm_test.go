@@ -1,7 +1,6 @@
 package e2e
 
 import (
-	"fmt"
 	"testing"
 
 	apiErrors "k8s.io/apimachinery/pkg/api/errors"
@@ -53,25 +52,17 @@ func getKeycloakRealmCR(namespace string) *keycloakv1alpha1.KeycloakRealm {
 
 func prepareKeycloakRealmCR(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
 	keycloakRealmCR := getKeycloakRealmCR(namespace)
-	fmt.Println("vor create realm")
 
 	err := Create(framework, keycloakRealmCR, ctx)
 	if err == nil {
 		return nil
 	}
-	fmt.Println("nach create realm")
-	fmt.Println(err)
 	if err != nil && !apiErrors.IsAlreadyExists(err) {
-		fmt.Println("err1")
-
-		fmt.Println(err)
 		return err
 	}
 	if err != nil && apiErrors.IsAlreadyExists(err) {
 		err = Delete(framework, keycloakRealmCR)
-		fmt.Println("err2", err)
 		if err != nil {
-			fmt.Println("delete err", err)
 			return Create(framework, keycloakRealmCR, ctx)
 		}
 	}

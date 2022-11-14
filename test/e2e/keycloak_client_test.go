@@ -19,10 +19,8 @@ import (
 )
 
 const (
-	clientName         = "test-client"
-	secondClientName   = "test-client-second"
-	externalClientName = "test-client-external"
-	authZClientName    = "test-client-authz"
+	secondClientName = "test-client-second"
+	authZClientName  = "test-client-authz"
 )
 
 var ErrDeprecatedClientSecretFound = errors.New("deprecated client secret found")
@@ -58,6 +56,7 @@ func NewKeycloakClientsCRDTestStruct() *CRDTestStruct {
 			"keycloakClientDefaultRolesTest": {
 				testFunction: keycloakClientDefaultRolesTest,
 			},
+			//FAIL
 			"keycloakClientScopeMappingsTest": {
 				prepareTestEnvironmentSteps: []environmentInitializationStep{
 					prepareKeycloakClientWithRolesCR,
@@ -67,6 +66,7 @@ func NewKeycloakClientsCRDTestStruct() *CRDTestStruct {
 			"keycloakClientDeprecatedClientSecretTest": {
 				testFunction: keycloakClientDeprecatedClientSecretTest,
 			},
+			//FAIL
 			"keycloakClientServiceAccountRealmRolesTest": {
 				testFunction: keycloakClientServiceAccountRealmRolesTest,
 			},
@@ -74,16 +74,10 @@ func NewKeycloakClientsCRDTestStruct() *CRDTestStruct {
 	}
 }
 
-func getKeycloakClientCR(namespace string, external bool) *keycloakv1alpha1.KeycloakClient {
+func getKeycloakClientCR(namespace string) *keycloakv1alpha1.KeycloakClient {
 	k8sName := testKeycloakClientCRName
-	id := clientName
+	id := testKeycloakClientCRName
 	labels := CreateLabel(namespace)
-
-	if external {
-		k8sName = testExternalKeycloakClientCRName
-		id = externalClientName
-		labels = CreateLabel(namespace)
-	}
 
 	return &keycloakv1alpha1.KeycloakClient{
 		ObjectMeta: metav1.ObjectMeta{
@@ -245,7 +239,7 @@ func getKeycloakClientAuthZCR(namespace string) *keycloakv1alpha1.KeycloakClient
 }
 
 func getKeycloakClientWithServiceAccount(namespace string) *keycloakv1alpha1.KeycloakClient {
-	keycloakClientCR := getKeycloakClientCR(namespace, false)
+	keycloakClientCR := getKeycloakClientCR(namespace)
 	keycloakClientCR.Spec.Client.PublicClient = false
 	keycloakClientCR.Spec.Client.ServiceAccountsEnabled = true
 	keycloakClientCR.Spec.ServiceAccountRealmRoles = []string{"realmRoleA", "realmRoleB"}
@@ -254,12 +248,12 @@ func getKeycloakClientWithServiceAccount(namespace string) *keycloakv1alpha1.Key
 }
 
 func prepareKeycloakClientCR(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
-	keycloakClientCR := getKeycloakClientCR(namespace, false)
+	keycloakClientCR := getKeycloakClientCR(namespace)
 	return Create(framework, keycloakClientCR, ctx)
 }
 
 func prepareExternalKeycloakClientCR(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
-	keycloakClientCR := getKeycloakClientCR(namespace, true)
+	keycloakClientCR := getKeycloakClientCR(namespace)
 	return Create(framework, keycloakClientCR, ctx)
 }
 
@@ -278,7 +272,7 @@ func keycloakClientBasicTest(t *testing.T, framework *test.Framework, ctx *test.
 }
 
 func externalKeycloakClientBasicTest(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
-	return WaitForClientToBeReady(t, framework, namespace, testExternalKeycloakClientCRName)
+	return WaitForClientToBeReady(t, framework, namespace, testKeycloakClientCRName)
 }
 
 func keycloakClientAuthZTest(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
@@ -286,7 +280,7 @@ func keycloakClientAuthZTest(t *testing.T, framework *test.Framework, ctx *test.
 }
 
 func keycloakClientDeprecatedClientSecretTest(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
-	client := getKeycloakClientCR(namespace, false)
+	client := getKeycloakClientCR(namespace)
 	secret := model.DeprecatedClientSecret(client)
 
 	// create client secret using client ID, i.e., keycloak-client-secret-<CLIENT_ID>
@@ -323,7 +317,7 @@ func keycloakClientDeprecatedClientSecretTest(t *testing.T, framework *test.Fram
 
 func keycloakClientRolesTest(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
 	// create
-	client := getKeycloakClientCR(namespace, false)
+	client := getKeycloakClientCR(namespace)
 
 	client.Spec.Roles = []keycloakv1alpha1.RoleRepresentation{{Name: "a"}, {Name: "b"}, {Name: "c"}}
 	err := Create(framework, client, ctx)
@@ -341,7 +335,7 @@ func keycloakClientRolesTest(t *testing.T, framework *test.Framework, ctx *test.
 	if err != nil {
 		return err
 	}
-	bID, err := getClientRoleID(authenticatedClient, clientName, "b")
+	bID, err := getClientRoleID(authenticatedClient, testKeycloakClientCRName, "b")
 	if err != nil {
 		return err
 	}
@@ -364,7 +358,7 @@ func keycloakClientRolesTest(t *testing.T, framework *test.Framework, ctx *test.
 
 func keycloakClientDefaultRolesTest(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
 	// create
-	client := getKeycloakClientCR(namespace, false)
+	client := getKeycloakClientCR(namespace)
 	client.Spec.Roles = []keycloakv1alpha1.RoleRepresentation{{Name: "a"}, {Name: "b"}, {Name: "c"}}
 	client.Spec.Client.DefaultRoles = []string{"a", "b"}
 	err := Create(framework, client, ctx)
@@ -426,7 +420,6 @@ func getRole(retrievedRoles []keycloakv1alpha1.RoleRepresentation, roleName stri
 
 func waitForClientRoles(t *testing.T, framework *test.Framework, keycloakCR keycloakv1alpha1.Keycloak, clientCR *keycloakv1alpha1.KeycloakClient, expected []keycloakv1alpha1.RoleRepresentation) error {
 	return WaitForConditionWithClient(t, framework, keycloakCR, func(authenticatedClient common.KeycloakInterface) error {
-		fmt.Println("waitForClientRoles")
 		roles, err := authenticatedClient.ListClientRoles(clientCR.Spec.Client.ID, realmName)
 		if err != nil {
 			return err
@@ -505,7 +498,7 @@ func waitForDefaultClientRoles(t *testing.T, framework *test.Framework, keycloak
 }
 
 func prepareKeycloakClientWithRolesCR(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
-	keycloakClientCR := getKeycloakClientCR(namespace, false).DeepCopy()
+	keycloakClientCR := getKeycloakClientCR(namespace).DeepCopy()
 	keycloakClientCR.Spec.Roles = []keycloakv1alpha1.RoleRepresentation{{Name: "a"}, {Name: "b"}, {Name: "c"}}
 	keycloakClientCR.Name = testSecondKeycloakClientCRName
 	keycloakClientCR.Spec.Client.ID = secondClientName
@@ -517,7 +510,7 @@ func prepareKeycloakClientWithRolesCR(t *testing.T, framework *test.Framework, c
 
 func getKeycloakClientWithScopeMappingsCR(namespace string, authenticatedClient common.KeycloakInterface,
 	realmRoleNames []string, secondClientRoleNames []string) (*keycloakv1alpha1.KeycloakClient, error) {
-	client := getKeycloakClientCR(namespace, false)
+	client := getKeycloakClientCR(namespace)
 	mappings, err := getKeycloakClientScopeMappings(authenticatedClient, realmRoleNames, secondClientRoleNames)
 	if err != nil {
 		return nil, err
@@ -553,8 +546,10 @@ func getKeycloakClientScopeMappings(authenticatedClient common.KeycloakInterface
 	return &scopeMappings, nil
 }
 
+// FAIL
 func keycloakClientScopeMappingsTest(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
 	err := WaitForClientToBeReady(t, framework, namespace, testSecondKeycloakClientCRName)
+
 	if err != nil {
 		return err
 	}
@@ -574,10 +569,13 @@ func keycloakClientScopeMappingsTest(t *testing.T, framework *test.Framework, ct
 		return err
 	}
 	err = Create(framework, client, ctx)
+	fmt.Println(err)
+
 	if err != nil {
 		return err
 	}
 	err = WaitForClientToBeReady(t, framework, namespace, testKeycloakClientCRName)
+
 	if err != nil {
 		return err
 	}
@@ -588,6 +586,8 @@ func keycloakClientScopeMappingsTest(t *testing.T, framework *test.Framework, ct
 	if err != nil {
 		return err
 	}
+	t.Logf("add nonexisting role to %s", testKeycloakClientCRName)
+
 	mappings, err := getKeycloakClientScopeMappings(
 		authenticatedClient,
 		[]string{"realmRoleB", "realmRoleC", "nonexistent"},
@@ -597,13 +597,16 @@ func keycloakClientScopeMappingsTest(t *testing.T, framework *test.Framework, ct
 		return err
 	}
 	retrievedClient.Spec.ScopeMappings = mappings
+	t.Logf("update %s with nonexisting role", testKeycloakClientCRName)
 	err = Update(framework, &retrievedClient)
 	if err != nil {
 		return err
 	}
+	t.Logf("wait for failiing keycloakclient %s with nonexisting role", testKeycloakClientCRName)
 	err = WaitForClientToBeFailing(t, framework, namespace, testKeycloakClientCRName)
+
 	if err != nil {
-		return err
+		return fmt.Errorf("keycloakclient %s should be failing with nonexisting role but got %s", testKeycloakClientCRName, err)
 	}
 
 	// update client: delete/leave/create mappings
@@ -616,6 +619,7 @@ func keycloakClientScopeMappingsTest(t *testing.T, framework *test.Framework, ct
 		return err
 	}
 	retrievedClient.Spec.ScopeMappings = mappings
+
 	err = Update(framework, &retrievedClient)
 	if err != nil {
 		return err
@@ -625,7 +629,7 @@ func keycloakClientScopeMappingsTest(t *testing.T, framework *test.Framework, ct
 		return err
 	}
 
-	retrievedMappings, err := authenticatedClient.ListScopeMappings(clientName, realmName)
+	retrievedMappings, err := authenticatedClient.ListScopeMappings(testKeycloakClientCRName, realmName)
 	if err != nil {
 		return err
 	}
@@ -646,6 +650,7 @@ func keycloakClientScopeMappingsTest(t *testing.T, framework *test.Framework, ct
 	return nil
 }
 
+// FAIL
 func keycloakClientServiceAccountRealmRolesTest(t *testing.T, framework *test.Framework, ctx *test.Context, namespace string) error {
 	// deploy secondary client with a few client roles
 	err := prepareKeycloakClientWithRolesCR(t, framework, ctx, namespace)
@@ -670,7 +675,7 @@ func keycloakClientServiceAccountRealmRolesTest(t *testing.T, framework *test.Fr
 	keycloakCR := getDeployedKeycloakCR(framework, namespace)
 
 	// assert roles
-	assertServiceAccountRoles(t, framework, keycloakCR, clientName, []string{"realmRoleA", "realmRoleB"}, map[string][]string{secondClientName: {"a", "b"}})
+	assertServiceAccountRoles(t, framework, keycloakCR, testKeycloakClientCRName, []string{"realmRoleA", "realmRoleB"}, map[string][]string{secondClientName: {"a", "b"}})
 
 	// remove one of the roles
 	var retrievedClient keycloakv1alpha1.KeycloakClient
@@ -686,7 +691,7 @@ func keycloakClientServiceAccountRealmRolesTest(t *testing.T, framework *test.Fr
 	}
 
 	// assert roles were removed
-	assertServiceAccountRoles(t, framework, keycloakCR, clientName, []string{"realmRoleB"}, map[string][]string{secondClientName: {"b"}})
+	assertServiceAccountRoles(t, framework, keycloakCR, testKeycloakClientCRName, []string{"realmRoleB"}, map[string][]string{secondClientName: {"b"}})
 
 	return nil
 }
