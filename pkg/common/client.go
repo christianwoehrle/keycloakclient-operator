@@ -822,7 +822,7 @@ var _ KeycloakInterface = &Client{}
 
 //go:generate moq -out keycloakClientFactory_moq.go . KeycloakClientFactory
 
-//KeycloakClientFactory interface
+// KeycloakClientFactory interface
 type KeycloakClientFactory interface {
 	AuthenticatedClient(kc v1alpha1.Keycloak) (KeycloakInterface, error)
 }

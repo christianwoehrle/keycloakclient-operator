@@ -35,6 +35,7 @@ func NewClientState(context context.Context, realm *kc.KeycloakRealm, keycloak k
 	}
 }
 
+// Read Client State from KeycloakServer and from Kubernetes (Secret)
 func (i *ClientState) Read(context context.Context, cr *kc.KeycloakClient, realmClient KeycloakInterface, controllerClient client.Client) error {
 	if cr.Spec.Client.ID == "" {
 		return nil

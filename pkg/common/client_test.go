@@ -8,9 +8,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
 	jsoniter "github.com/json-iterator/go"
 
-	"github.com/christianwoehrle/keycloakclient-operator/pkg/apis/keycloak/v1alpha1"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,6 +20,17 @@ const (
 	ClientCreatePath = "/auth/admin/realms/%s/clients"
 	TokenPath        = "/auth/realms/master/protocol/openid-connect/token" // nolint
 )
+
+func getDummyKeycloak() *v1alpha1.Keycloak {
+	return &v1alpha1.Keycloak{
+		Spec: v1alpha1.KeycloakSpec{
+			External: v1alpha1.KeycloakExternal{
+				URL: "https://keycloak/",
+			},
+			Unmanaged: true,
+		},
+	}
+}
 
 func getDummyRealm() *v1alpha1.KeycloakRealm {
 	return &v1alpha1.KeycloakRealm{
@@ -32,11 +43,15 @@ func getDummyRealm() *v1alpha1.KeycloakRealm {
 		},
 	}
 }
-func getDummyClient() *v1alpha1.KeycloakAPIClient {
-	return &v1alpha1.KeycloakAPIClient{
-		ID:      "dummy",
-		Name:    "dummy",
-		Enabled: false,
+func getDummyClient() *v1alpha1.KeycloakClient {
+	return &v1alpha1.KeycloakClient{
+		Spec: v1alpha1.KeycloakClientSpec{
+			Client: &v1alpha1.KeycloakAPIClient{
+				ID:      "dummy",
+				Name:    "dummy",
+				Enabled: false,
+			},
+		},
 	}
 }
 
@@ -218,12 +233,12 @@ func TestClient_CreateKeycloakCLient(t *testing.T) {
 	}
 
 	// when
-	uid, err := client.CreateClient(keycloakClient, realm.Spec.Realm.Realm)
+	uid, err := client.CreateClient(keycloakClient.Spec.Client, realm.Spec.Realm.Realm)
 
 	// then
 	// correct path expected on httptest server
 	assert.NoError(t, err)
 	assert.Equal(t, "4710701c-3f81-4b96-8ba0-f6b73651fbca", uid)
 	assert.Equal(t, method, "POST")
-	assert.Equal(t, keycloakClient.ID, ID)
+	assert.Equal(t, keycloakClient.Spec.Client.ID, ID)
 }
