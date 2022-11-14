@@ -56,12 +56,14 @@ cluster/installKeycloak:
 	@kubectl apply -f deploy/installKeycloak/ingress.yaml -n $(NAMESPACE)
 	@echo ingress ================================
 	@kubectl get ingress -A -owide
+	@echo ingress ================================
 	@kubectl get ingress -A -oyaml
 	@echo sleep 240 ==================
 	@sleep 240
+	@echo ingress ================================
 	@kubectl get ingress -A -owide
+	@echo svc ================================
 	@kubectl get svc -A -owide
-	@kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- bash -c "curl http://keycloak.local/auth/"
 
 
 .PHONY: cluster/installKeycloakOperator  
