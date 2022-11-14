@@ -64,7 +64,8 @@ cluster/installKeycloak:
 	@kubectl get ingress -A -owide
 	@echo svc ================================
 	@kubectl get svc -A -owide
-
+	@echo curl  ================================
+	@curl http://keycloak.local:80/auth/
 
 .PHONY: cluster/installKeycloakOperator  
 cluster/installKeycloakOperator:
