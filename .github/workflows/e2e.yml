@@ -29,6 +29,7 @@ jobs:
     - name: Run e2e tests
       run: |
         make cluster/prepare
+        make cluster/installKeycloak
         make test/e2e
         make cluster/clean
     - name: Run e2e tests for local image
