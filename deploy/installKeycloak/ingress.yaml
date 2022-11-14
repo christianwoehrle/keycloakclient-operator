@@ -4,9 +4,9 @@ metadata:
   name: keycloak
   namespace: keycloak
 spec:
-  ingressClassName: traefik-internal
   rules:
-  - http:
+  - host: keycloak.local
+    http:
       paths:
       - backend:
           service:
