@@ -1,9 +1,6 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  annotations:
-    traefik.ingress.kubernetes.io/router.middlewares: keycloak-keycloak-redirect@kubernetescrd
-    traefik.ingress.kubernetes.io/router.tls: "true"
   name: keycloak
   namespace: keycloak
 spec:
