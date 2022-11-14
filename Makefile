@@ -44,10 +44,10 @@ cluster/installKeycloak:
 	@kubectl apply -f deploy/installKeycloak/realm.yaml -n $(NAMESPACE)
 	@helm upgrade --install keycloak codecentric/keycloakx --values "deploy/installKeycloak/values.yaml" -n $(NAMESPACE)
 	@kubectl apply -f deploy/installKeycloak/credential-keycloak-test.yaml -n $(NAMESPACE)
-	@helm repo add traefik https://containous.github.io/traefik-helm-chart
+	@helm repo add traefik https://helm.traefik.io/traefik
 	@kubectl create namespace traefik
 	@helm repo update
-	@helm upgrade --install traefik --namespace traefik --set="additionalArguments={--log.level=INFO,--providers.kubernetesingress.ingressclass=traefik-internal,--serversTransport.insecureSkipVerify=true}"  traefik/traefik --version 9.1.1
+	@helm install traefik traefik/traefik
 	@kubectl apply -f deploy/installKeycloak/ingress.yaml -n $(NAMESPACE)
 
 
