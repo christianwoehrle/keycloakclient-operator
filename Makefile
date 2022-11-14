@@ -57,8 +57,10 @@ cluster/installKeycloak:
 	@echo ingress ================================
 	@kubectl get ingress -A -owide
 	@kubectl get ingress -A -oyaml
-	@echo svc ================================
-	@kubectl get svc -oyaml -n keycloak
+	@echo sleep 240 ==================
+	@sleep 240
+	@kubectl get ingress -A -owide
+	@kubectl get svc -A -owide
 	@kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- bash -c "curl http://keycloak.local/auth/"
 
 
