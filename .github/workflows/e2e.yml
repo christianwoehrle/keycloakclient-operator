@@ -31,6 +31,8 @@ jobs:
       run: |
         make cluster/prepare
         make cluster/installKeycloak
+        kubectl get ingress -A 
+        kubectl get svc -n traefik -oyaml
         make test/e2e
         make cluster/clean
     - name: Run e2e tests for local image
