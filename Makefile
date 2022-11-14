@@ -44,9 +44,9 @@ cluster/installKeycloak:
 	@helm repo update
 	@kubectl apply -f deploy/installKeycloak/realm.yaml -n $(NAMESPACE)
 	@helm upgrade --install keycloak codecentric/keycloakx --values "deploy/installKeycloak/values.yaml" -n $(NAMESPACE)
-	@kubectl get po -A 
 	@kubectl apply -f deploy/installKeycloak/credential-keycloak-test.yaml -n $(NAMESPACE)
 	@kubectl get po -A 
+	@echo sleep 240 ==================
 	@sleep 240
 	@kubectl get po -A 
 	@kubectl get ingress -A -owide
@@ -56,6 +56,8 @@ cluster/installKeycloak:
 	@kubectl apply -f deploy/installKeycloak/ingress.yaml -n $(NAMESPACE)
 	@echo ingress ================================
 	@kubectl get ingress -A -owide
+	@kubectl get ingress -A -oyaml
+	@kubectl get svc -oyaml
 	@kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- bash -c "curl http://keycloak.local/auth/"
 
 
