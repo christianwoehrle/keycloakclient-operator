@@ -97,7 +97,7 @@ func prepareUnmanagedKeycloaksCR(t *testing.T, f *framework.Framework, ctx *fram
 }
 
 func prepareExternalKeycloaksCR(t *testing.T, f *framework.Framework, ctx *framework.Context, namespace string) error {
-	keycloakURL := "http://keycloak.local:8080"
+	keycloakURL := "http://keycloak.local:80"
 
 	secret, err := getExternalKeycloakSecret(f, namespace)
 	if err != nil && !apiErrors.IsNotFound(err) {
