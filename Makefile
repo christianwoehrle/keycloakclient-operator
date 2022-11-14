@@ -49,10 +49,14 @@ cluster/installKeycloak:
 	@kubectl get po -A 
 	@sleep 120
 	@kubectl get po -A 
-	@kubectl get ingress -A 
+	@kubectl get ingress -A -owide
+	@echo webhooks ===============================
 	@kubectl get mutatingwebhookconfigurations.admissionregistration.k8s.io -A 
 	@kubectl get validatingwebhookconfigurations.admissionregistration.k8s.io -A 
 	@kubectl apply -f deploy/installKeycloak/ingress.yaml -n $(NAMESPACE)
+	@echo ingress ================================
+	@kubectl get ingress -A -owide
+	@kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- curl http://keycloak.local/auth/
 
 
 .PHONY: cluster/installKeycloakOperator  
