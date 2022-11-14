@@ -21,7 +21,6 @@ jobs:
     - name: Configure Minikube
       run: |
         minikube addons enable ingress
-        ls -la  hack/modify_etc_hosts.sh
         hack/modify_etc_hosts.sh "keycloak.local"
         nslookup "keycloak.local"
     - name: Run e2e tests
@@ -29,7 +28,7 @@ jobs:
         make cluster/prepare
         make cluster/installKeycloak
         kubectl get ingress -A 
-        kubectl get svc -n traefik -oyaml
+        curl http://keycloak.local:80/auth/
         make test/e2e
         make cluster/clean
     - name: Run e2e tests for local image
