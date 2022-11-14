@@ -47,7 +47,7 @@ cluster/installKeycloak:
 	@helm repo add traefik https://helm.traefik.io/traefik
 	@kubectl create namespace traefik
 	@helm repo update
-	@helm install traefik traefik/traefik
+	@helm install traefik traefik/traefik -n traefik
 	@kubectl apply -f deploy/installKeycloak/ingress.yaml -n $(NAMESPACE)
 
 
