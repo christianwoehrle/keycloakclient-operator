@@ -65,6 +65,7 @@ cluster/installKeycloak:
 	@echo svc ================================
 	@kubectl get svc -A -owide
 	@echo curl  ================================
+	@cat /etc/hosts
 	@curl http://keycloak.local:80/auth/
 
 .PHONY: cluster/installKeycloakOperator  
