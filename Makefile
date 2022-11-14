@@ -44,7 +44,9 @@ cluster/installKeycloak:
 	@helm repo update
 	@kubectl apply -f deploy/installKeycloak/realm.yaml -n $(NAMESPACE)
 	@helm upgrade --install keycloak codecentric/keycloakx --values "deploy/installKeycloak/values.yaml" -n $(NAMESPACE)
+	@kubectl get po -A 
 	@kubectl apply -f deploy/installKeycloak/credential-keycloak-test.yaml -n $(NAMESPACE)
+	@kubectl get po -A 
 	@kubectl apply -f deploy/installKeycloak/ingress.yaml -n $(NAMESPACE)
 	@kubectl get po -A 
 
