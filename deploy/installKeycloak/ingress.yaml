@@ -10,7 +10,7 @@ spec:
       paths:
       - backend:
           service:
-            name: keycloak-http
+            name: keycloak-keycloakx-http
             port:
               number: 80
         path: /

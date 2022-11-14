@@ -21,9 +21,6 @@ jobs:
     - name: Configure Minikube
       run: |
         minikube addons enable ingress
-        pwd
-        ls -la
-        ls -la  hack
         ls -la  hack/modify_etc_hosts.sh
         hack/modify_etc_hosts.sh "keycloak.local"
         nslookup "keycloak.local"
