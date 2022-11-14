@@ -47,7 +47,7 @@ cluster/installKeycloak:
 	@kubectl get po -A 
 	@kubectl apply -f deploy/installKeycloak/credential-keycloak-test.yaml -n $(NAMESPACE)
 	@kubectl get po -A 
-	@sleep 120
+	@sleep 240
 	@kubectl get po -A 
 	@kubectl get ingress -A -owide
 	@echo webhooks ===============================
@@ -56,7 +56,7 @@ cluster/installKeycloak:
 	@kubectl apply -f deploy/installKeycloak/ingress.yaml -n $(NAMESPACE)
 	@echo ingress ================================
 	@kubectl get ingress -A -owide
-	@kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- curl http://keycloak.local/auth/
+	@kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- bash -c "curl http://keycloak.local/auth/"
 
 
 .PHONY: cluster/installKeycloakOperator  
