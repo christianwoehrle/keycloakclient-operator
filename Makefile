@@ -42,6 +42,7 @@ cluster/clean:
 cluster/installKeycloak:
 	@helm repo add codecentric "https://codecentric.github.io/helm-charts"
 	@helm repo update
+	@kubectl create namespace keycloak
 	@kubectl apply -f deploy/installKeycloak/realm.yaml -n $(NAMESPACE)
 	@helm upgrade --install keycloak codecentric/keycloakx --values "deploy/installKeycloak/values.yaml" -n $(NAMESPACE)
 	@kubectl apply -f deploy/installKeycloak/credential-keycloak-test.yaml -n $(NAMESPACE)
